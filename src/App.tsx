@@ -1,10 +1,14 @@
+import { Routes, Route } from "react-router-dom";
 import "./App.css";
+import Home from "./pages/Home";
 
 function App() {
   return (
-    <>
-      <span className="m-4">app is running...</span>
-    </>
+    <main className="h-screen w-screen p-0 m-0">
+      <Routes>
+        <Route path="/" element={<Home />} />
+      </Routes>
+    </main>
   );
 }
 
