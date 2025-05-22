@@ -20,7 +20,6 @@ export default function Home() {
 
     return (
         <div className="flex w-full h-dvh">
-            <Navigation />
             <div className="flex flex-1">
                 <div className="w-1/2 h-full">
                     <Products onSelectProduct={handleSelectProduct} />

@@ -48,7 +48,7 @@ export default function Navigation() {
                         to={item.path} 
                         className={({ isActive }) => 
                             `w-10 h-10 rounded-full flex items-center justify-center transition-colors duration-200 ${
-                                isActive ? "bg-primary" : "bg-text-secondary hover:bg-text-primary"
+                                isActive ? "bg-text-primary" : "bg-text-secondary hover:bg-text-primary"
                             }`
                         }
                     >

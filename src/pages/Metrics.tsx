@@ -231,11 +231,10 @@ export default function Metrics() {
     .slice(0, 5);
 
   return (
-    <div className="flex w-full h-dvh">
-      <Navigation />
-      <div className="flex-1 overflow-hidden flex flex-col">
-        {/* Header with title and filters */}
-        <div className="p-4 bg-primary flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-text-secondary/10 gap-2">
+    <div className="flex w-full h-screen">
+      <div className="flex-1 flex flex-col overflow-hidden"> {/* This container shouldn't scroll */}
+        {/* Header with title and filters - fixed position */}
+        <div className="p-4 bg-primary flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-text-secondary/10 gap-2 z-10">
           <h1 className="text-2xl font-bold text-text-primary">Metriky</h1>
 
           <div className="flex flex-wrap gap-4 items-center">
@@ -303,7 +302,7 @@ export default function Metrics() {
           </div>
         </div>
 
-        {/* Metrics content */}
+        {/* Metrics content - scrollable */}
         <div className="flex-1 overflow-auto p-4">
           {loading ? (
             <div className="flex justify-center items-center h-32">

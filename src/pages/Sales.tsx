@@ -242,8 +242,7 @@ export default function Sales() {
     const totalSales = filteredOrders.reduce((sum, order) => sum + (order.totalPrice || 0), 0);
 
     return (
-        <div className="flex w-full h-dvh">
-            <Navigation />
+        <div className="flex w-full h-screen">
             <div className="flex-1 overflow-hidden flex flex-col">
                 {/* Header with title and filters */}
                 <div className="p-4 bg-primary flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-text-secondary/10 gap-2">
@@ -254,8 +253,8 @@ export default function Sales() {
                             <button
                                 onClick={() => setDateFilter('day')}
                                 className={`px-3 py-1 rounded-md text-sm transition-colors ${dateFilter === 'day'
-                                        ? 'bg-link text-text-primary'
-                                        : 'bg-primary text-text-secondary hover:bg-secondary'
+                                    ? 'bg-link text-text-primary'
+                                    : 'bg-primary text-text-secondary hover:bg-secondary'
                                     }`}
                             >
                                 Den
@@ -263,8 +262,8 @@ export default function Sales() {
                             <button
                                 onClick={() => setDateFilter('month')}
                                 className={`px-3 py-1 rounded-md text-sm transition-colors ${dateFilter === 'month'
-                                        ? 'bg-link text-text-primary'
-                                        : 'bg-primary text-text-secondary hover:bg-secondary'
+                                    ? 'bg-link text-text-primary'
+                                    : 'bg-primary text-text-secondary hover:bg-secondary'
                                     }`}
                             >
                                 Měsíc
@@ -272,8 +271,8 @@ export default function Sales() {
                             <button
                                 onClick={() => setDateFilter('year')}
                                 className={`px-3 py-1 rounded-md text-sm transition-colors ${dateFilter === 'year'
-                                        ? 'bg-link text-text-primary'
-                                        : 'bg-primary text-text-secondary hover:bg-secondary'
+                                    ? 'bg-link text-text-primary'
+                                    : 'bg-primary text-text-secondary hover:bg-secondary'
                                     }`}
                             >
                                 Rok
@@ -281,8 +280,8 @@ export default function Sales() {
                             <button
                                 onClick={() => setDateFilter('custom')}
                                 className={`px-3 py-1 rounded-md text-sm transition-colors ${dateFilter === 'custom'
-                                        ? 'bg-link text-text-primary'
-                                        : 'bg-primary text-text-secondary hover:bg-secondary'
+                                    ? 'bg-link text-text-primary'
+                                    : 'bg-primary text-text-secondary hover:bg-secondary'
                                     }`}
                             >
                                 Vlastní
