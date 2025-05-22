@@ -41,7 +41,7 @@ export const orderService = {
             }
             
             // Map to expected format if necessary
-            return orders.map(order => this.normalizeOrderData(order));
+            return orders.map((order: any) => this.normalizeOrderData(order));
         } catch (error) {
             console.error('Error fetching orders:', error);
             throw error;
@@ -55,7 +55,7 @@ export const orderService = {
         
         // If API returns products array instead of items
         if (order.products && Array.isArray(order.products) && !order.items) {
-            items = order.products.map(product => {
+            items = order.products.map((product: any) => {
                 // Check if product is already in expected format
                 if (product.product && product.quantity) {
                     return product;

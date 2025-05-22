@@ -1,9 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { orderService, OrderFilterParams } from '../services/orderService';
-import { productService } from '../services/productService';
+import { productService, Product } from '../services/productService';
 import { Order } from '../types/order';
-import { Product } from '../types/product';
-import Navigation from '../components/Navigation';
 
 // Date filter options
 type DateFilter = 'day' | 'month' | 'year' | 'custom';
@@ -237,9 +235,6 @@ export default function Sales() {
         }
         return 0;
     };
-
-    // Calculate total sales amount for filtered orders
-    const totalSales = filteredOrders.reduce((sum, order) => sum + (order.totalPrice || 0), 0);
 
     return (
         <div className="flex w-full h-screen">

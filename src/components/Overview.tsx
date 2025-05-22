@@ -162,14 +162,14 @@ export default function Overview({ selectedProducts = [], onClearOrder }: Overvi
                                         <td className="px-2 py-2">
                                             <div className="flex products-center justify-center space-x-1">
                                                 <button 
-                                                    onClick={() => updateQuantity(product.id, product.quantity - 1)}
+                                                    onClick={() => product.id && updateQuantity(product.id, product.quantity - 1)}
                                                     className="w-5 h-5 bg-secondary rounded-full flex products-center justify-center text-text-primary hover:bg-primary"
                                                 >
                                                     -
                                                 </button>
                                                 <span className="mx-1">{product.quantity}</span>
                                                 <button 
-                                                    onClick={() => updateQuantity(product.id, product.quantity + 1)}
+                                                    onClick={() => product.id && updateQuantity(product.id, product.quantity + 1)}
                                                     className="w-5 h-5 bg-secondary rounded-full flex products-center justify-center text-text-primary hover:bg-primary"
                                                 >
                                                     +
@@ -179,7 +179,7 @@ export default function Overview({ selectedProducts = [], onClearOrder }: Overvi
                                         <td className="px-2 py-2 text-right font-medium">{formatPrice(product.product.price * product.quantity)}</td>
                                         <td className="px-2 py-2 text-right">
                                             <button 
-                                                onClick={() => removeFromOrder(product.id)}
+                                                onClick={() => product.id && removeFromOrder(product.id)}
                                                 className="text-error hover:text-error/80"
                                             >
                                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">

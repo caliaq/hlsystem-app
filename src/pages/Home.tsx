@@ -1,5 +1,4 @@
 import { useCallback, useState } from "react";
-import Navigation from "../components/Navigation";
 import Products from "../components/Products";
 import Overview from "../components/Overview";
 import Gates from "../components/Gates";

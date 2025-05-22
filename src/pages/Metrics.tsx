@@ -1,7 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { orderService, OrderFilterParams } from '../services/orderService';
 import { productService } from '../services/productService';
-import Navigation from '../components/Navigation';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 // Date filter options for granularity
