@@ -94,27 +94,20 @@ export default function Overview({ selectedProducts = [], onClearOrder }: Overvi
         if (orderproducts.length === 0) return;
 
         try {
-            // Create the order data according to API requirements
             const orderData: CreateOrderDto = {
                 products: orderproducts.map(product => ({
                     productId: product.product._id,
                     quantity: product.quantity,
-                    // Add duration if needed in the future
                 })),
-                // Use current date in ISO format as required by the backend
                 date: new Date().toISOString()
-                // visitorId can be added here if we have a selected visitor
             };
             
-            // Create the order using the order service
             const createdOrder = await orderService.createOrder(orderData);
             
-            // Clear the order after successful completion
             clearOrder();
             
-            // Show a success message
-            alert(`Sale completed! Total: ${formatPrice(totalPrice)}`);
-            console.log('Order completed:', createdOrder);
+            alert(`Hotovo, celková cena je: ${formatPrice(totalPrice)}`);
+            console.log('Hotovo:', createdOrder);
         } catch (error) {
             console.error('Failed to complete sale:', error);
             alert('Failed to complete the sale. Please try again.');
@@ -124,7 +117,7 @@ export default function Overview({ selectedProducts = [], onClearOrder }: Overvi
     return (
         <div className="w-full h-full bg-primary flex flex-col p-4">
             <div className="flex justify-between products-center mb-4">
-                <h2 className="text-lg font-bold text-text-primary">Current Order</h2>
+                <h2 className="text-lg font-bold text-text-primary">Objednávka</h2>
                 <div className="flex space-x-2">
                     <button 
                         onClick={clearOrder}
@@ -135,7 +128,7 @@ export default function Overview({ selectedProducts = [], onClearOrder }: Overvi
                                 : 'bg-error/80 hover:bg-error'
                         }`}
                     >
-                        Clear Order
+                        Vymazat objednávku
                     </button>
                 </div>
             </div>
@@ -145,8 +138,8 @@ export default function Overview({ selectedProducts = [], onClearOrder }: Overvi
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mb-2 opacity-30" viewBox="0 0 20 20" fill="currentColor">
                         <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" />
                     </svg>
-                    <p>No products in order</p>
-                    <p className="text-xs mt-1">Select products to add them to your order</p>
+                    <p>Nejsou vybrány žádné produkty</p>
+                    <p className="text-xs mt-1">Vyber produkty</p>
                 </div>
             ) : (
                 <>
@@ -154,10 +147,10 @@ export default function Overview({ selectedProducts = [], onClearOrder }: Overvi
                         <table className="w-full text-sm text-text-primary">
                             <thead className="text-xs uppercase bg-primary/30 border-b border-text-secondary/10">
                                 <tr>
-                                    <th className="px-2 py-2 text-left">Product</th>
-                                    <th className="px-2 py-2 text-right">Price</th>
-                                    <th className="px-2 py-2 text-center">Qty</th>
-                                    <th className="px-2 py-2 text-right">Total</th>
+                                    <th className="px-2 py-2 text-left">Produkt</th>
+                                    <th className="px-2 py-2 text-right">Cena</th>
+                                    <th className="px-2 py-2 text-center">Množství</th>
+                                    <th className="px-2 py-2 text-right">Celkem</th>
                                     <th className="px-2 py-2"></th>
                                 </tr>
                             </thead>
@@ -216,7 +209,7 @@ export default function Overview({ selectedProducts = [], onClearOrder }: Overvi
                                         : 'bg-success hover:bg-success/80'
                                 }`}
                             >
-                                Complete Sale
+                                Dokončit
                             </button>
                         </div>
                     </div>

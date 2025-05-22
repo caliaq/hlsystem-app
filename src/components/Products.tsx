@@ -39,12 +39,12 @@ export default function Products({ onSelectProduct }: ProductsProps) {
     return (
         <div className="w-full h-screen bg-secondary flex flex-col">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-2 sm:p-4 mb-2 gap-2 bg-secondary sticky top-0 z-10">
-                <h2 className="text-xl font-bold text-text-primary">Products</h2>
+                <h2 className="text-xl font-bold text-text-primary">Produkty</h2>
                 <button className="w-full sm:w-auto px-4 py-2 bg-link text-text-primary rounded-md hover:bg-blue-700 transition-colors flex items-center justify-center">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
                         <path fillRule="evenodd" d="M10 3a1 1 0 00-1 1v5H4a1 1 0 100 2h5v5a1 1 0 102 0v-5h5a1 1 0 100-2h-5V4a1 1 0 00-1-1z" clipRule="evenodd" />
                     </svg>
-                    Add Product
+                    Přidat produkt
                 </button>
             </div>
 
