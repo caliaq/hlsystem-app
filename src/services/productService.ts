@@ -1,30 +1,27 @@
 import { ENV } from "../config/env";
 
 export interface Product {
-  id: string;
+  _id: string;
   name: string;
   description: string;
   price: number;
-  imageUrl?: string;
-  createdAt: string;
-  updatedAt: string;
 }
 
 export interface CreateProductDto {
   name: string;
   description: string;
   price: number;
-  imageUrl?: string;
 }
 
 export const productService = {
   async getProducts(): Promise<Product[]> {
     try {
-      const response = await fetch(ENV.API.ENDPOINTS.PRODUCTS);
-      if (!response.ok) {
+      const response = await fetch(`${ENV.API.ENDPOINTS.PRODUCTS}`);
+      const data = await response.json();
+      if (!data.success) {
         throw new Error('Failed to fetch products');
       }
-      return await response.json();
+      return Array.isArray(data.data) ? data.data : [];
     } catch (error) {
       console.error('Error fetching products:', error);
       return [];
@@ -46,7 +43,7 @@ export const productService = {
 
   async createProduct(product: CreateProductDto): Promise<Product | null> {
     try {
-      const response = await fetch(ENV.API.ENDPOINTS.PRODUCTS, {
+      const response = await fetch(`${ENV.API.ENDPOINTS.PRODUCTS}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

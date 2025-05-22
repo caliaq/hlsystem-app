@@ -7,6 +7,7 @@ export const ENV = {
       PRODUCTS: `${API}/products`,
       VISITORS: `${API}/visitors`,
       GATES: `${API}/gates`,
+      ORDERS: `${API}/orders`,
       ENTRIES: `${API}/entries`,
     }
   }

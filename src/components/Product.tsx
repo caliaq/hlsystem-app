@@ -5,31 +5,23 @@ interface ProductProps {
 }
 
 export default function Product({ product }: ProductProps) {
-  const formattedPrice = new Intl.NumberFormat('cs-CZ', { 
-    style: 'currency', 
-    currency: 'CZK' 
+  const formattedPrice = new Intl.NumberFormat('cs-CZ', {
+    style: 'currency',
+    currency: 'CZK'
   }).format(product.price);
 
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden transition-all hover:shadow-lg">
-      {product.imageUrl ? (
-        <img 
-          src={product.imageUrl} 
-          alt={product.name} 
-          className="w-full h-48 object-cover"
-        />
-      ) : (
-        <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
-          <span className="text-gray-400">No image</span>
-        </div>
-      )}
-      <div className="p-4">
-        <h3 className="text-lg font-medium text-gray-900">{product.name}</h3>
-        <p className="mt-1 text-sm text-gray-500 line-clamp-2">{product.description}</p>
-        <div className="mt-2 flex justify-between items-center">
-          <span className="text-lg font-bold text-gray-900">{formattedPrice}</span>
-          <button className="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600">
-            Detail
+    <div className="aspect-square bg-primary rounded-lg shadow-md overflow-hidden transition-all cursor-pointer hover:shadow-lg hover:scale-[1.02] flex flex-col">
+      <div className="p-3 flex flex-col h-full">
+        <h3 className="text-base font-medium text-text-primary line-clamp-2">{product.name}</h3>
+        <p className="mt-1 text-xs text-text-secondary line-clamp-2 overflow-hidden flex-grow">{product.description}</p>
+        <div className="flex justify-between items-center mt-auto pt-1 border-t border-text-secondary/10">
+          <span className="text-base font-bold text-text-primary">{formattedPrice}</span>
+          <button className="p-1 rounded-full hover:bg-text-secondary/10">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-link" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+              <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
+            </svg>
           </button>
         </div>
       </div>
