@@ -1,4 +1,4 @@
-export const API = 'https://visitors-api-545231919812.europe-west1.run.app';
+const API = import.meta.env.VITE_API;
 
 export const ENV = {
   API: {
