@@ -1,7 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { HashRouter } from 'react-router-dom'
-import App from './App.tsx'
+import App from './App'
 import './index.css'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
@@ -14,7 +14,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
 
 // Use contextBridge if window.ipcRenderer exists
 if (window.ipcRenderer) {
-  window.ipcRenderer.on('main-process-message', (_event, message) => {
+  window.ipcRenderer.on('main-process-message', (_event: any, message: any) => {
     console.log(message)
   })
 }

@@ -5,7 +5,10 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "allowSyntheticDefaultImports": true,
-    "strict": true
+    "strict": true,
+    "noEmit": false,
+    "outDir": "dist-electron",
+    "target": "ES2020"
   },
-  "include": ["vite.config.ts"]
+  "include": ["vite.config.ts", "electron"]
 }

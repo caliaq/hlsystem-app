@@ -87,7 +87,8 @@ class ReceiptPrinter {
       // Informace o objednávce
       this.printer.alignLeft();
       this.printer.println(`Objednávka: ${data.orderNumber}`);
-      this.printer.println(`Datum: ${data.date}`);
+      this.printer.println(
+        `Datum: ${data.date}`);
       this.printer.drawLine();
 
       // Položky
