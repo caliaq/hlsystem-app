@@ -128,7 +128,7 @@ export default function Products({ onSelectProduct }: ProductsProps) {
     };
 
     return (
-        <div className="w-full h-screen bg-secondary flex flex-col">
+        <div className="w-full h-screen bg-secondary flex flex-col overflow-y-scroll">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-2 sm:p-4 mb-2 gap-2 bg-secondary sticky top-0 z-10">
                 <h2 className="text-xl font-bold text-text-primary">Produkty</h2>
                 <div className="flex gap-2 w-full sm:w-auto">
