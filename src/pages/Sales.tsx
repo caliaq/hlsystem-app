@@ -1,7 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
-import { orderService, OrderFilterParams } from '../services/orderService';
-import { productService, Product } from '../services/productService';
 import { Order } from '../types/order';
+import { Product } from '../services/productService';
+import { orderService, OrderFilterParams } from '../services/orderService';
+import { productService } from '../services/productService';
+import { printerService } from '../services/printerService';
 
 // Date filter options
 type DateFilter = 'day' | 'month' | 'year' | 'custom';
@@ -19,6 +21,7 @@ export default function Sales() {
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     const [searchId, setSearchId] = useState('');
+    const [isPrinting, setIsPrinting] = useState<string | null>(null);
 
     // Fetch orders and products on component mount
     useEffect(() => {
@@ -214,6 +217,42 @@ export default function Sales() {
         }
     };
 
+    // Handle receipt printing for existing order
+    const handlePrintReceipt = async (order: Order) => {
+        try {
+            setIsPrinting(order._id);
+            
+            // Prepare receipt data
+            const receiptData = {
+                orderNumber: order._id,
+                date: formatDate(order.createdAt),
+                items: order.items?.map(item => ({
+                    name: getProductName(item),
+                    quantity: item.quantity || 0,
+                    price: getProductPrice(item),
+                    total: getProductPrice(item) * (item.quantity || 0)
+                })) || [],
+                totalAmount: order.totalPrice || 0,
+                storeName: 'Hradišťský Vrch',
+                storeAddress: 'Vaše adresa zde'
+            };
+
+            // Print receipt
+            const printResult = await printerService.printReceipt(receiptData);
+            
+            if (printResult.success) {
+                alert('Účtenka byla úspěšně vytisknuta!');
+            } else {
+                alert(`Tisk účtenky selhal: ${printResult.error}`);
+            }
+        } catch (error) {
+            console.error('Failed to print receipt:', error);
+            alert('Nepodařilo se vytisknout účtenku. Zkuste to znovu.');
+        } finally {
+            setIsPrinting(null);
+        }
+    };
+
     // Open view modal with order details
     const handleViewOrder = (order: Order) => {
         setSelectedOrder(order);
@@ -247,37 +286,41 @@ export default function Sales() {
                         <div className="flex space-x-1">
                             <button
                                 onClick={() => setDateFilter('day')}
-                                className={`px-3 py-1 rounded-md text-sm transition-colors ${dateFilter === 'day'
-                                    ? 'bg-link text-text-primary'
-                                    : 'bg-primary text-text-secondary hover:bg-secondary'
-                                    }`}
+                                className={`px-3 py-1 rounded-md text-sm transition-colors ${
+                                    dateFilter === 'day'
+                                        ? 'bg-link text-text-primary'
+                                        : 'bg-secondary text-text-secondary hover:bg-primary'
+                                }`}
                             >
-                                Den
+                                Dnes
                             </button>
                             <button
                                 onClick={() => setDateFilter('month')}
-                                className={`px-3 py-1 rounded-md text-sm transition-colors ${dateFilter === 'month'
-                                    ? 'bg-link text-text-primary'
-                                    : 'bg-primary text-text-secondary hover:bg-secondary'
-                                    }`}
+                                className={`px-3 py-1 rounded-md text-sm transition-colors ${
+                                    dateFilter === 'month'
+                                        ? 'bg-link text-text-primary'
+                                        : 'bg-secondary text-text-secondary hover:bg-primary'
+                                }`}
                             >
                                 Měsíc
                             </button>
                             <button
                                 onClick={() => setDateFilter('year')}
-                                className={`px-3 py-1 rounded-md text-sm transition-colors ${dateFilter === 'year'
-                                    ? 'bg-link text-text-primary'
-                                    : 'bg-primary text-text-secondary hover:bg-secondary'
-                                    }`}
+                                className={`px-3 py-1 rounded-md text-sm transition-colors ${
+                                    dateFilter === 'year'
+                                        ? 'bg-link text-text-primary'
+                                        : 'bg-secondary text-text-secondary hover:bg-primary'
+                                }`}
                             >
                                 Rok
                             </button>
                             <button
                                 onClick={() => setDateFilter('custom')}
-                                className={`px-3 py-1 rounded-md text-sm transition-colors ${dateFilter === 'custom'
-                                    ? 'bg-link text-text-primary'
-                                    : 'bg-primary text-text-secondary hover:bg-secondary'
-                                    }`}
+                                className={`px-3 py-1 rounded-md text-sm transition-colors ${
+                                    dateFilter === 'custom'
+                                        ? 'bg-link text-text-primary'
+                                        : 'bg-secondary text-text-secondary hover:bg-primary'
+                                }`}
                             >
                                 Vlastní
                             </button>
@@ -291,7 +334,7 @@ export default function Sales() {
                                     onChange={(e) => setStartDate(e.target.value)}
                                     className="px-2 py-1 bg-secondary text-text-primary rounded-md text-sm"
                                 />
-                                <span className="text-text-secondary">-</span>
+                                <span className="text-text-secondary text-sm">-</span>
                                 <input
                                     type="date"
                                     value={endDate}
@@ -302,29 +345,18 @@ export default function Sales() {
                         )}
 
                         <div className="flex items-center space-x-2 ml-2">
-                            <div className="relative">
-                                <input
-                                    type="text"
-                                    placeholder="Hledat ID..."
-                                    value={searchId}
-                                    onChange={(e) => setSearchId(e.target.value)}
-                                    className="pl-8 pr-2 py-1 bg-secondary text-text-primary rounded-md text-sm w-40"
-                                />
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    className="h-4 w-4 absolute left-2 top-1/2 transform -translate-y-1/2 text-text-secondary"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                >
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                </svg>
-                            </div>
+                            <input
+                                type="text"
+                                placeholder="Hledat podle ID..."
+                                value={searchId}
+                                onChange={(e) => setSearchId(e.target.value)}
+                                className="px-3 py-1 bg-secondary text-text-primary rounded-md text-sm placeholder-text-secondary"
+                            />
                             <button
-                                onClick={fetchProductsAndOrders}
-                                className="px-3 py-1 bg-link text-text-primary rounded-md text-sm hover:bg-link/80 transition-colors"
+                                onClick={() => setSearchId('')}
+                                className="px-3 py-1 bg-link text-text-primary rounded-md text-sm hover:bg-link/80"
                             >
-                                Obnovit
+                                Vymazat
                             </button>
                         </div>
                     </div>
@@ -345,57 +377,81 @@ export default function Sales() {
                         </div>
                     ) : (
                         <div className="bg-primary rounded-md overflow-hidden">
-                            <table className="w-full text-text-primary text-sm">
-                                <thead className="bg-secondary">
+                            <table className="w-full text-sm text-text-primary">
+                                <thead className="text-xs uppercase bg-secondary/50">
                                     <tr>
-                                        <th className="px-4 py-2 text-left">Datum</th>
-                                        <th className="px-4 py-2 text-left">Položky</th>
-                                        <th className="px-4 py-2 text-right">Celkem</th>
-                                        <th className="px-4 py-2 text-right">Akce</th>
+                                        <th className="px-4 py-3 text-left">ID Objednávky</th>
+                                        <th className="px-4 py-3 text-left">Datum</th>
+                                        <th className="px-4 py-3 text-left">Položky</th>
+                                        <th className="px-4 py-3 text-right">Celková cena</th>
+                                        <th className="px-4 py-3 text-center">Akce</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {filteredOrders.map((order) => (
-                                        <tr key={order._id} className="border-b border-text-secondary/10 hover:bg-secondary/30">
-                                            <td className="px-4 py-3">{formatDate(order.createdAt)}</td>
+                                        <tr key={order._id} className="border-b border-secondary/30 hover:bg-secondary/20">
+                                            <td className="px-4 py-3 font-mono text-xs">
+                                                {order._id.slice(-8)}...
+                                            </td>
                                             <td className="px-4 py-3">
-                                                <div className="flex flex-col">
+                                                {formatDate(order.createdAt)}
+                                            </td>
+                                            <td className="px-4 py-3">
+                                                <div className="max-w-xs">
                                                     {order.items?.slice(0, 2).map((item, index) => (
-                                                        <span key={index} className="text-text-secondary text-xs">
+                                                        <div key={index} className="text-xs">
                                                             {item.quantity}x {getProductName(item)}
-                                                        </span>
+                                                        </div>
                                                     ))}
-                                                    {(order.items?.length || 0) > 2 && (
-                                                        <span className="text-text-secondary text-xs">
-                                                            +{order.items!.length - 2} další
-                                                        </span>
+                                                    {order.items && order.items.length > 2 && (
+                                                        <div className="text-xs text-text-secondary">
+                                                            +{order.items.length - 2} dalších...
+                                                        </div>
                                                     )}
                                                 </div>
                                             </td>
                                             <td className="px-4 py-3 text-right font-medium">
                                                 {formatCurrency(order.totalPrice || 0)}
                                             </td>
-                                            <td className="px-4 py-3 text-right">
-                                                <div className="flex justify-end space-x-1">
+                                            <td className="px-4 py-3">
+                                                <div className="flex justify-center space-x-2">
                                                     <button
                                                         onClick={() => handleViewOrder(order)}
-                                                        className="p-1 rounded hover:bg-secondary"
+                                                        className="p-1 text-link hover:text-link/80 transition-colors"
                                                         title="Zobrazit detail"
                                                     >
-                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-text-primary" viewBox="0 0 20 20" fill="currentColor">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                                                             <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
                                                             <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
                                                         </svg>
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handlePrintReceipt(order)}
+                                                        disabled={isPrinting === order._id}
+                                                        className={`p-1 transition-colors ${
+                                                            isPrinting === order._id
+                                                                ? 'text-text-secondary cursor-not-allowed'
+                                                                : 'text-success hover:text-success/80'
+                                                        }`}
+                                                        title="Vytisknout účtenku"
+                                                    >
+                                                        {isPrinting === order._id ? (
+                                                            <div className="animate-spin h-4 w-4 border-2 border-text-secondary border-t-transparent rounded-full"></div>
+                                                        ) : (
+                                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                                                <path fillRule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a2 2 0 002 2h6a2 2 0 002-2v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8H7v4h6v-4z" clipRule="evenodd" />
+                                                            </svg>
+                                                        )}
                                                     </button>
                                                     <button
                                                         onClick={() => {
                                                             setSelectedOrder(order);
                                                             setIsDeleteModalOpen(true);
                                                         }}
-                                                        className="p-1 rounded hover:bg-error/20"
+                                                        className="p-1 text-error hover:text-error/80 transition-colors"
                                                         title="Smazat objednávku"
                                                     >
-                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-error" viewBox="0 0 20 20" fill="currentColor">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                                                             <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
                                                         </svg>
                                                     </button>
@@ -461,35 +517,57 @@ export default function Sales() {
                             <div className="text-text-secondary text-sm mb-1">Položky</div>
                             <div className="bg-secondary rounded-md overflow-hidden">
                                 <table className="w-full text-sm">
-                                    <thead className="bg-secondary/50">
-                                        <tr>
-                                            <th className="px-3 py-2 text-left text-text-secondary">Produkt</th>
-                                            <th className="px-3 py-2 text-center text-text-secondary">Množ.</th>
-                                            <th className="px-3 py-2 text-right text-text-secondary">Cena</th>
-                                        </tr>
-                                    </thead>
                                     <tbody>
                                         {selectedOrder.items?.map((item, index) => (
-                                            <tr key={index} className="border-b border-text-secondary/10">
-                                                <td className="px-3 py-2 text-text-primary">{getProductName(item)}</td>
-                                                <td className="px-3 py-2 text-center text-text-primary">{item.quantity}</td>
-                                                <td className="px-3 py-2 text-right text-text-primary">
-                                                    {formatCurrency(getProductPrice(item) * item.quantity)}
+                                            <tr key={index} className="border-b border-primary last:border-0">
+                                                <td className="px-3 py-2 text-text-primary">
+                                                    {getProductName(item)}
+                                                </td>
+                                                <td className="px-3 py-2 text-text-secondary text-right">
+                                                    {item.quantity}x
+                                                </td>
+                                                <td className="px-3 py-2 text-text-primary text-right">
+                                                    {formatCurrency(getProductPrice(item) * (item.quantity || 0))}
                                                 </td>
                                             </tr>
                                         ))}
-                                    </tbody>
-                                    <tfoot>
-                                        <tr>
-                                            <td colSpan={2} className="px-3 py-2 text-right font-bold text-text-primary">Celkem</td>
-                                            <td className="px-3 py-2 text-right font-bold text-text-primary">{formatCurrency(selectedOrder.totalPrice || 0)}</td>
+                                        <tr className="bg-primary/30">
+                                            <td className="px-3 py-2 font-bold text-text-primary" colSpan={2}>
+                                                Celkem
+                                            </td>
+                                            <td className="px-3 py-2 font-bold text-text-primary text-right">
+                                                {formatCurrency(selectedOrder.totalPrice || 0)}
+                                            </td>
                                         </tr>
-                                    </tfoot>
+                                    </tbody>
                                 </table>
                             </div>
                         </div>
 
-                        <div className="flex justify-end">
+                        <div className="flex justify-between">
+                            <button
+                                onClick={() => handlePrintReceipt(selectedOrder)}
+                                disabled={isPrinting === selectedOrder._id}
+                                className={`px-4 py-2 rounded-md transition-colors flex items-center ${
+                                    isPrinting === selectedOrder._id
+                                        ? 'bg-secondary text-text-secondary cursor-not-allowed'
+                                        : 'bg-success text-text-primary hover:bg-success/80'
+                                }`}
+                            >
+                                {isPrinting === selectedOrder._id ? (
+                                    <>
+                                        <div className="animate-spin h-4 w-4 border-2 border-text-secondary border-t-transparent rounded-full mr-2"></div>
+                                        Tiskne...
+                                    </>
+                                ) : (
+                                    <>
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fillRule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a2 2 0 002 2h6a2 2 0 002-2v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8H7v4h6v-4z" clipRule="evenodd" />
+                                        </svg>
+                                        Tisknout účtenku
+                                    </>
+                                )}
+                            </button>
                             <button
                                 onClick={() => setIsViewModalOpen(false)}
                                 className="px-4 py-2 bg-link text-text-primary rounded-md hover:bg-link/80"

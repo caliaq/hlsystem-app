@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Product as ProductType } from "../services/productService";
 import { OrderProduct } from "../types/order";
 import { orderService, CreateOrderDto } from "../services/orderService";
+import { printerService } from "../services/printerService";
 
 interface OverviewProps {
     selectedProducts?: ProductType[];
@@ -104,9 +105,32 @@ export default function Overview({ selectedProducts = [], onClearOrder }: Overvi
             
             const createdOrder = await orderService.createOrder(orderData);
             
-            clearOrder();
+            // Připravení dat pro tisk
+            const receiptData = {
+                orderNumber: createdOrder._id || 'N/A',
+                date: new Date().toLocaleString('cs-CZ'),
+                items: orderproducts.map(product => ({
+                    name: product.product.name,
+                    quantity: product.quantity,
+                    price: product.product.price,
+                    total: product.product.price * product.quantity
+                })),
+                totalAmount: totalPrice,
+                storeName: 'Hradišťský Vrch',
+                storeAddress: 'Vaše adresa zde'
+            };
+
+            // Tisk účtenky
+            const printResult = await printerService.printReceipt(receiptData);
             
-            alert(`Hotovo, celková cena je: ${formatPrice(totalPrice)}`);
+            if (printResult.success) {
+                clearOrder();
+                alert(`Objednávka dokončena a účtenka vytisknuta!\nCelková cena: ${formatPrice(totalPrice)}`);
+            } else {
+                clearOrder();
+                alert(`Objednávka dokončena, ale tisk selhal: ${printResult.error}\nCelková cena: ${formatPrice(totalPrice)}`);
+            }
+            
             console.log('Hotovo:', createdOrder);
         } catch (error) {
             console.error('Failed to complete sale:', error);
