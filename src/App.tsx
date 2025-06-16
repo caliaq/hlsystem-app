@@ -3,6 +3,7 @@ import "./App.css";
 import Home from "./pages/Home";
 import Sales from "./pages/Sales";
 import Metrics from "./pages/Metrics";
+import TaxReduction from "./pages/TaxReduction";
 
 import Navigation from "./components/Navigation";
 
@@ -15,6 +16,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/sales" element={<Sales />} />
           <Route path="/metrics" element={<Metrics />} />
+          <Route path="/tax-reduction" element={<TaxReduction />} />
         </Routes>
       </div>
     </main>

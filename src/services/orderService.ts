@@ -19,6 +19,13 @@ export interface OrderFilterParams {
     endDate: string;
 }
 
+export interface TaxReductionResult {
+  success: boolean;
+  removedQuantity: number;
+  ordersAffected: number;
+  error?: string;
+}
+
 export const orderService = {
     async getOrders(): Promise<Order[]> {
         try {
@@ -230,5 +237,110 @@ export const orderService = {
             startDate: start.toISOString().split('T')[0],
             endDate: today.toISOString().split('T')[0]
         };
+    },
+
+    async reduceTaxForProduct(productId: string, targetQuantity: number): Promise<TaxReductionResult> {
+    try {
+      // Načteme všechny objednávky
+      const orders = await this.getOrders();
+      
+      // Filtrujeme objednávky které obsahují požadovaný produkt
+      const ordersWithProduct = orders.filter(order => 
+        order.items?.some(item => {
+          const itemProductId = typeof item.product === 'string' 
+            ? item.product 
+            : item.product?._id;
+          return itemProductId === productId;
+        })
+      );
+
+      if (ordersWithProduct.length === 0) {
+        return {
+          success: false,
+          removedQuantity: 0,
+          ordersAffected: 0,
+          error: 'Žádné objednávky s tímto produktem nebyly nalezeny'
+        };
+      }
+
+      // Zamícháme objednávky pro náhodný výběr
+      const shuffledOrders = [...ordersWithProduct].sort(() => Math.random() - 0.5);
+      
+      let remainingQuantity = targetQuantity;
+      let ordersAffected = 0;
+      let totalRemovedQuantity = 0;
+      const updatedOrders: string[] = [];
+
+      // Procházíme náhodně vybrané objednávky
+      for (const order of shuffledOrders) {
+        if (remainingQuantity <= 0) break;
+
+        let orderModified = false;
+        const updatedItems = order.items?.map(item => {
+          const itemProductId = typeof item.product === 'string' 
+            ? item.product 
+            : item.product?._id;
+          
+          if (itemProductId === productId && remainingQuantity > 0) {
+            const currentQuantity = item.quantity || 0;
+            const quantityToRemove = Math.min(currentQuantity, remainingQuantity);
+            
+            if (quantityToRemove > 0) {
+              remainingQuantity -= quantityToRemove;
+              totalRemovedQuantity += quantityToRemove;
+              orderModified = true;
+              
+              const newQuantity = currentQuantity - quantityToRemove;
+              return newQuantity > 0 ? { ...item, quantity: newQuantity } : null;
+            }
+          }
+          return item;
+        }).filter(item => item !== null) || [];
+
+        // Pokud byla objednávka upravena, aktualizujeme ji
+        if (orderModified) {
+          try {
+            // Pokud už nemá žádné položky, smažeme celou objednávku
+            if (updatedItems.length === 0) {
+              await this.deleteOrder(order._id);
+            } else {
+              // Připravíme data pro update
+              const updateData = {
+                products: updatedItems.map(item => ({
+                  productId: typeof item.product === 'string' 
+                    ? item.product 
+                    : item.product?._id || '',
+                  quantity: item.quantity || 0,
+                  duration: item.duration
+                })).filter(p => p.productId && p.quantity > 0),
+                date: order.createdAt
+              };
+
+              await this.updateOrder(order._id, updateData);
+            }
+            
+            ordersAffected++;
+            updatedOrders.push(order._id);
+          } catch (error) {
+            console.error(`Chyba při aktualizaci objednávky ${order._id}:`, error);
+            // Pokračujeme s dalšími objednávkami i při chybě
+          }
+        }
+      }
+
+      return {
+        success: true,
+        removedQuantity: totalRemovedQuantity,
+        ordersAffected: ordersAffected
+      };
+    } catch (error) {
+      console.error('Error reducing tax for product:', error);
+      return {
+        success: false,
+        removedQuantity: 0,
+        ordersAffected: 0,
+        error: error instanceof Error ? error.message : 'Neznámá chyba při krácení daní'
+      };
     }
+  },
 };
