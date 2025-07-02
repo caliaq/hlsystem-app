@@ -1,19 +1,5 @@
 import { ENV } from "../config/env";
-
-export interface Gate {
-  id: string;
-  name: string;
-  description: string;
-  isOpen: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface CreateGateDto {
-  name: string;
-  description: string;
-  isOpen?: boolean;
-}
+import { Gate, CreateGateDto } from '../types/gate';
 
 export const gateService = {
   async getGates(): Promise<Gate[]> {
@@ -64,7 +50,7 @@ export const gateService = {
   async updateGate(id: string, gate: Partial<CreateGateDto>): Promise<Gate> {
     try {
       const response = await fetch(`${ENV.API.ENDPOINTS.GATES}/${id}`, {
-        method: 'PATCH',
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },

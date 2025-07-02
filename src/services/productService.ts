@@ -1,17 +1,5 @@
 import { ENV } from "../config/env";
-
-export interface Product {
-  _id: string;
-  name: string;
-  description: string;
-  price: number;
-}
-
-export interface CreateProductDto {
-  name: string;
-  description: string;
-  price: number;
-}
+import { Product, CreateProductDto } from '../types/product';
 
 export const productService = {
   async getProducts(): Promise<Product[]> {
@@ -29,7 +17,7 @@ export const productService = {
       return Array.isArray(data) ? data : [];
     } catch (error) {
       console.error('Error fetching products:', error);
-      return [];
+      throw error;
     }
   },
 
@@ -39,11 +27,10 @@ export const productService = {
       if (!response.ok) {
         throw new Error('Failed to fetch product');
       }
-      const data = await response.json();
-      return data.success ? data.data : data;
+      return await response.json();
     } catch (error) {
       console.error(`Error fetching product with id ${id}:`, error);
-      return null;
+      throw error;
     }
   },
 
@@ -59,18 +46,17 @@ export const productService = {
       if (!response.ok) {
         throw new Error('Failed to create product');
       }
-      const data = await response.json();
-      return data.success ? data.data : data;
+      return await response.json();
     } catch (error) {
       console.error('Error creating product:', error);
-      return null;
+      throw error;
     }
   },
 
   async updateProduct(id: string, product: Partial<CreateProductDto>): Promise<Product | null> {
     try {
       const response = await fetch(`${ENV.API.ENDPOINTS.PRODUCTS}/${id}`, {
-        method: 'PATCH',
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -79,11 +65,10 @@ export const productService = {
       if (!response.ok) {
         throw new Error('Failed to update product');
       }
-      const data = await response.json();
-      return data.success ? data.data : data;
+      return await response.json();
     } catch (error) {
       console.error(`Error updating product with id ${id}:`, error);
-      return null;
+      throw error;
     }
   },
 
@@ -92,10 +77,13 @@ export const productService = {
       const response = await fetch(`${ENV.API.ENDPOINTS.PRODUCTS}/${id}`, {
         method: 'DELETE',
       });
-      return response.ok;
+      if (!response.ok) {
+        throw new Error('Failed to delete product');
+      }
+      return true;
     } catch (error) {
       console.error(`Error deleting product with id ${id}:`, error);
-      return false;
+      throw error;
     }
   },
 };

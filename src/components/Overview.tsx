@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Product as ProductType } from "../services/productService";
+import { Product as ProductType } from "../types/product";
 import { OrderProduct } from "../types/order";
 import { orderService, CreateOrderDto } from "../services/orderService";
 import { printerService } from "../services/printerService";
@@ -43,7 +43,7 @@ export default function Overview({ selectedProducts = [], onClearOrder }: Overvi
             return [...prev, { 
                 product, 
                 quantity: 1,
-                id: `${product._id}-${Date.now()}` // Create unique ID for this order item
+                _id: `${product._id}-${Date.now()}` // Create unique ID for this order item
             }];
         });
     };
@@ -51,13 +51,13 @@ export default function Overview({ selectedProducts = [], onClearOrder }: Overvi
     // Update item quantity
     const updateQuantity = (itemId: string, newQuantity: number) => {
         if (newQuantity <= 0) {
-            setOrderProducts(prev => prev.filter(item => item.id !== itemId));
+            setOrderProducts(prev => prev.filter(item => item._id !== itemId));
             return;
         }
 
         setOrderProducts(prev => 
             prev.map(item => 
-                item.id === itemId ? { ...item, quantity: newQuantity } : item
+                item._id === itemId ? { ...item, quantity: newQuantity } : item
             )
         );
     };
@@ -161,21 +161,21 @@ export default function Overview({ selectedProducts = [], onClearOrder }: Overvi
                     <div className="flex-1 overflow-auto">
                         <div className="space-y-2">
                             {orderProducts.map((item) => (
-                                <div key={item.id} className="flex items-center justify-between p-2 bg-secondary/30 rounded-md">
+                                <div key={item._id} className="flex items-center justify-between p-2 bg-secondary/30 rounded-md">
                                     <div className="flex-1">
                                         <h4 className="text-text-primary font-medium text-sm">{item.product.name}</h4>
                                         <p className="text-text-secondary text-xs">{formatPrice(item.product.price)}</p>
                                     </div>
                                     <div className="flex items-center space-x-2">
                                         <button 
-                                            onClick={() => updateQuantity(item.id!, item.quantity - 1)}
+                                            onClick={() => updateQuantity(item._id!, item.quantity - 1)}
                                             className="w-6 h-6 bg-secondary rounded-full flex items-center justify-center text-text-primary hover:bg-primary text-sm"
                                         >
                                             -
                                         </button>
                                         <span className="text-text-primary min-w-[2rem] text-center">{item.quantity}</span>
                                         <button 
-                                            onClick={() => updateQuantity(item.id!, item.quantity + 1)}
+                                            onClick={() => updateQuantity(item._id!, item.quantity + 1)}
                                             className="w-6 h-6 bg-secondary rounded-full flex items-center justify-center text-text-primary hover:bg-primary text-sm"
                                         >
                                             +

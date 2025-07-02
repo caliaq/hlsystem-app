@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Order } from '../types/order';
-import { Product } from '../services/productService';
+import { Product } from '../types/product';
 import { orderService, OrderFilterParams } from '../services/orderService';
 import { productService } from '../services/productService';
 import { printerService } from '../services/printerService';

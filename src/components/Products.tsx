@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Product as ProductType, productService, CreateProductDto } from "../services/productService";
+import { Product as ProductType } from "../types/product";
+import { productService } from "../services/productService";
 import Product from "./Product";
 
 interface ProductsProps {
@@ -13,7 +14,7 @@ export default function Products({ onSelectProduct }: ProductsProps) {
     const [isEditMode, setIsEditMode] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState<ProductType | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [formData, setFormData] = useState<CreateProductDto>({
+    const [formData, setFormData] = useState({
         name: '',
         description: '',
         price: 0
@@ -69,12 +70,10 @@ export default function Products({ onSelectProduct }: ProductsProps) {
 
     const handleSaveProduct = async () => {
         if (!selectedProduct) return;
-        
+
         try {
             await productService.updateProduct(selectedProduct._id, formData);
-            // Refresh the product list
             fetchProducts();
-            // Close the modal
             setIsModalOpen(false);
             setSelectedProduct(null);
         } catch (err) {
@@ -89,12 +88,10 @@ export default function Products({ onSelectProduct }: ProductsProps) {
 
     const handleDeleteConfirm = async () => {
         if (!selectedProduct) return;
-        
+
         try {
             await productService.deleteProduct(selectedProduct._id);
-            // Refresh the product list
             fetchProducts();
-            // Close both modals
             setIsDeleteConfirmOpen(false);
             setIsModalOpen(false);
             setSelectedProduct(null);
@@ -117,9 +114,7 @@ export default function Products({ onSelectProduct }: ProductsProps) {
     const handleCreateProduct = async () => {
         try {
             await productService.createProduct(formData);
-            // Refresh the product list
             fetchProducts();
-            // Close the modal
             setIsModalOpen(false);
         } catch (err) {
             console.error("Failed to create product:", err);

@@ -27,3 +27,7 @@ release
 *.njsproj
 *.sln
 *.sw?
+
+# Windows COM ports (problematic files)
+COM*
+LPT*

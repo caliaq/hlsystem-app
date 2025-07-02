@@ -3,22 +3,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { orderService, OrderFilterParams } from '../services/orderService';
 import { productService } from '../services/productService';
 import { printerService } from '../services/printerService';
-
-// Date filter options for granularity
-type DateFilter = 'day' | 'month' | 'year';
-
-interface ProductMetric {
-  id: string;
-  name: string;
-  quantity: number;
-  revenue: number;
-}
-
-interface MetricItem {
-  label: string;  // Date or period label
-  totalRevenue: number;
-  products: Record<string, ProductMetric>;
-}
+import { ProductMetric, MetricItem, DateFilter } from '../types/metrics';
 
 export default function Metrics() {
   // Granularity control
@@ -106,7 +91,7 @@ export default function Metrics() {
           // Update period metrics
           if (!metricsMap[periodKey].products[productId]) {
             metricsMap[periodKey].products[productId] = {
-              id: productId,
+              _id: productId,
               name: productName,
               quantity: 0,
               revenue: 0
@@ -119,7 +104,7 @@ export default function Metrics() {
           // Update overall product metrics
           if (!productMetrics[productId]) {
             productMetrics[productId] = {
-              id: productId,
+              _id: productId,
               name: productName,
               quantity: 0,
               revenue: 0
@@ -424,7 +409,7 @@ export default function Metrics() {
                     </thead>
                     <tbody>
                       {topProducts.map((product, index) => (
-                        <tr key={product.id} className="border-b border-secondary/20">
+                        <tr key={product._id} className="border-b border-secondary/20">
                           <td className="px-3 py-2 text-text-secondary">{index + 1}</td>
                           <td className="px-3 py-2 text-text-primary">{product.name}</td>
                           <td className="px-3 py-2 text-right text-text-primary">{product.quantity}</td>

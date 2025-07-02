@@ -1,4 +1,4 @@
-import { Product as ProductType } from "../services/productService";
+import { Product as ProductType } from "../types/product";
 
 interface ProductProps {
   product: ProductType;

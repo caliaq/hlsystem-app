@@ -213,29 +213,36 @@ export const orderService = {
         }
     },
 
-    // Utility methods for date ranges
-    getDateRangeForFilter(filter: 'day' | 'month' | 'year'): OrderFilterParams {
-        const today = new Date();
-        let start = new Date();
-        
-        switch (filter) {
+    getDateRangeForFilter(dateFilter: 'day' | 'month' | 'year'): OrderFilterParams {
+        const now = new Date();
+        let startDate: Date;
+        let endDate: Date = new Date(now);
+
+        switch (dateFilter) {
             case 'day':
-                // Current day
-                start = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+                startDate = new Date(now);
+                startDate.setHours(0, 0, 0, 0);
+                endDate.setHours(23, 59, 59, 999);
                 break;
             case 'month':
-                // Current month
-                start = new Date(today.getFullYear(), today.getMonth(), 1);
+                startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+                endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+                endDate.setHours(23, 59, 59, 999);
                 break;
             case 'year':
-                // Current year
-                start = new Date(today.getFullYear(), 0, 1);
+                startDate = new Date(now.getFullYear(), 0, 1);
+                endDate = new Date(now.getFullYear(), 11, 31);
+                endDate.setHours(23, 59, 59, 999);
                 break;
+            default:
+                startDate = new Date(now);
+                startDate.setHours(0, 0, 0, 0);
+                endDate.setHours(23, 59, 59, 999);
         }
-        
+
         return {
-            startDate: start.toISOString().split('T')[0],
-            endDate: today.toISOString().split('T')[0]
+            startDate: startDate.toISOString().split('T')[0],
+            endDate: endDate.toISOString().split('T')[0]
         };
     },
 

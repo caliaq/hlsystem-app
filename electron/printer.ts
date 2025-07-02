@@ -3,7 +3,8 @@ import { ipcMain } from 'electron';
 import { exec } from 'child_process';
 
 export interface PrintReceiptData {
-  orderNumber: string;
+  orderNumber?: string;
+  _id?: string;
   date: string;
   items: Array<{
     name: string;
@@ -112,18 +113,18 @@ class ReceiptPrinter {
       this.printer.alignCenter();
       this.printer.setTextSize(1, 1);
       this.printer.bold(true);
-      this.printer.println(data.storeName || 'Hradišťský Vrch');
-      this.printer.bold(false);
+      this.printer.println('Hradišťský Vrch');
+      this.printer.bold(true);
       this.printer.setTextNormal();
 
-      if (data.storeAddress) {
-        this.printer.println(data.storeAddress);
-      }
+      this.printer.println("Konstantinovy Lázně");
+      this.printer.println("Provozovatel: HÁJEK - Velin s.r.o.");
+      this.printer.println("IČ: 611 73 517");
 
       this.printer.drawLine();
 
       this.printer.alignLeft();
-      this.printer.println(`Objednávka: ${data.orderNumber}`);
+      this.printer.println(`Objednávka: ${data._id}`);
       this.printer.println(`Datum: ${data.date}`);
       this.printer.drawLine();
 

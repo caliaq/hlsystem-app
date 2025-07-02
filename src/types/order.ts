@@ -1,5 +1,5 @@
-import { Product } from "../services/productService";
-import { Visitor } from "../services/visitorService";
+import { Product } from "./product";
+import { Visitor } from "./visitor";
 
 export interface OrderItem {
   product: Product | string;
@@ -11,13 +11,13 @@ export interface Order {
   _id: string;
   items?: OrderItem[];
   totalPrice?: number;
-  visitor?: any;
+  visitor?: Visitor | string;
   createdAt: string;
   completedAt?: string;
 }
 
 export interface OrderProduct {
-  id?: string;
+  _id?: string;
   product: Product;
   quantity: number;
   duration?: number;

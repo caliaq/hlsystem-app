@@ -2,7 +2,7 @@ import { useCallback, useState } from "react";
 import Products from "../components/Products";
 import Overview from "../components/Overview";
 import Gates from "../components/Gates";
-import { Product as ProductType } from "../services/productService";
+import { Product as ProductType } from "../types/product";
 
 export default function Home() {
     const [selectedProducts, setSelectedProducts] = useState<ProductType[]>([]);

@@ -1,25 +1,5 @@
 import { ENV } from "../config/env";
-
-export interface Visitor {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone?: string;
-  company?: string;
-  notes?: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface CreateVisitorDto {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone?: string;
-  company?: string;
-  notes?: string;
-}
+import { Visitor, CreateVisitorDto } from '../types/visitor';
 
 export const visitorService = {
   async getVisitors(): Promise<Visitor[]> {
@@ -35,7 +15,7 @@ export const visitorService = {
     }
   },
 
-  async getVisitorById(id: string): Promise<Visitor> {
+  async getVisitorById(id: string): Promise<Visitor | null> {
     try {
       const response = await fetch(`${ENV.API.ENDPOINTS.VISITORS}/${id}`);
       if (!response.ok) {
@@ -48,7 +28,7 @@ export const visitorService = {
     }
   },
 
-  async createVisitor(visitor: CreateVisitorDto): Promise<Visitor> {
+  async createVisitor(visitor: CreateVisitorDto): Promise<Visitor | null> {
     try {
       const response = await fetch(ENV.API.ENDPOINTS.VISITORS, {
         method: 'POST',
@@ -67,10 +47,10 @@ export const visitorService = {
     }
   },
 
-  async updateVisitor(id: string, visitor: Partial<CreateVisitorDto>): Promise<Visitor> {
+  async updateVisitor(id: string, visitor: Partial<CreateVisitorDto>): Promise<Visitor | null> {
     try {
       const response = await fetch(`${ENV.API.ENDPOINTS.VISITORS}/${id}`, {
-        method: 'PATCH',
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -86,7 +66,7 @@ export const visitorService = {
     }
   },
 
-  async deleteVisitor(id: string): Promise<void> {
+  async deleteVisitor(id: string): Promise<boolean> {
     try {
       const response = await fetch(`${ENV.API.ENDPOINTS.VISITORS}/${id}`, {
         method: 'DELETE',
@@ -94,6 +74,7 @@ export const visitorService = {
       if (!response.ok) {
         throw new Error('Failed to delete visitor');
       }
+      return true;
     } catch (error) {
       console.error(`Error deleting visitor with id ${id}:`, error);
       throw error;
