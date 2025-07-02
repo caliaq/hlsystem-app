@@ -1,5 +1,5 @@
-import { contextBridge as i, ipcRenderer as e } from "electron";
-i.exposeInMainWorld("electronAPI", {
-  printReceipt: (r) => e.invoke("print-receipt", r),
-  getPrinters: () => e.invoke("get-printers")
+import { contextBridge, ipcRenderer } from "electron";
+contextBridge.exposeInMainWorld("electronAPI", {
+  printReceipt: (data) => ipcRenderer.invoke("print-receipt", data),
+  getPrinters: () => ipcRenderer.invoke("get-printers")
 });

@@ -1,5 +1,6 @@
 import { ThermalPrinter, PrinterTypes, CharacterSet, BreakLine } from 'node-thermal-printer';
 import { ipcMain } from 'electron';
+import { exec } from 'child_process';
 
 export interface PrintReceiptData {
   orderNumber: string;
@@ -17,6 +18,7 @@ export interface PrintReceiptData {
 
 class ReceiptPrinter {
   private printer: ThermalPrinter | null = null;
+  private currentInterface: string = 'tcp://192.168.1.100:9100'; // RP-330-L PARTNER síťová tiskárna
 
   constructor() {
     this.initializePrinter();
@@ -27,17 +29,39 @@ class ReceiptPrinter {
     try {
       this.printer = new ThermalPrinter({
         type: PrinterTypes.EPSON,
-        interface: 'printer:Auto', // Automaticky najde tiskárnu
+        interface: this.currentInterface,
         characterSet: CharacterSet.PC852_LATIN2,
         removeSpecialCharacters: false,
         lineCharacter: "-",
         breakLine: BreakLine.WORD,
         options: {
-          timeout: 5000
-        }
+          timeout: 15000 // Zvýšený timeout pro síťové připojení
+        },
+        width: 48
       });
     } catch (error) {
-      console.error('Failed to initialize printer:', error);
+      console.error('Failed to initialize network printer:', error);
+      this.tryAlternativeConfig();
+    }
+  }
+
+  private tryAlternativeConfig() {
+    try {
+      // Pokus o připojení přes IP s jinou konfigurací
+      this.printer = new ThermalPrinter({
+        type: PrinterTypes.STAR,
+        interface: 'tcp://192.168.1.100:9100',
+        characterSet: CharacterSet.PC852_LATIN2,
+        removeSpecialCharacters: false,
+        lineCharacter: "-",
+        breakLine: BreakLine.WORD,
+        options: {
+          timeout: 15000
+        },
+        width: 48
+      });
+    } catch (error) {
+      console.error('Failed to initialize printer with fallback config:', error);
     }
   }
 
@@ -49,16 +73,32 @@ class ReceiptPrinter {
     ipcMain.handle('get-printers', async () => {
       return await this.getAvailablePrinters();
     });
+
+    ipcMain.handle('test-printer-connection', async () => {
+      return await this.testPrinterConnection();
+    });
+
+    ipcMain.handle('set-printer-interface', async (event, printerName: string) => {
+      this.currentInterface = `printer:${printerName}`;
+      this.initializePrinter();
+      return { success: true, message: `Tiskárna nastavena na ${printerName}` };
+    });
   }
 
-  private async getAvailablePrinters() {
-    try {
-      if (!this.printer) return [];
-      return await this.printer.getPrinters();
-    } catch (error) {
-      console.error('Failed to get printers:', error);
-      return [];
-    }
+  private async getAvailablePrinters(): Promise<string[]> {
+    return new Promise((resolve) => {
+      exec('wmic printer get name', (error, stdout) => {
+        if (error) {
+          console.error('Error getting printers:', error);
+          return resolve([]);
+        }
+        const printers = stdout
+          .split('\n')
+          .map(line => line.trim())
+          .filter(name => name && name !== 'Name');
+        resolve(printers);
+      });
+    });
   }
 
   private async printReceipt(data: PrintReceiptData): Promise<{ success: boolean; error?: string }> {
@@ -67,48 +107,43 @@ class ReceiptPrinter {
         throw new Error('Printer not initialized');
       }
 
-      // Vyčištění bufferu
       this.printer.clear();
 
-      // Hlavička
       this.printer.alignCenter();
       this.printer.setTextSize(1, 1);
       this.printer.bold(true);
       this.printer.println(data.storeName || 'Hradišťský Vrch');
       this.printer.bold(false);
       this.printer.setTextNormal();
-      
+
       if (data.storeAddress) {
         this.printer.println(data.storeAddress);
       }
-      
-      this.printer.drawLine();
-      
-      // Informace o objednávce
-      this.printer.alignLeft();
-      this.printer.println(`Objednávka: ${data.orderNumber}`);
-      this.printer.println(
-        `Datum: ${data.date}`);
+
       this.printer.drawLine();
 
-      // Položky
+      this.printer.alignLeft();
+      this.printer.println(`Objednávka: ${data.orderNumber}`);
+      this.printer.println(`Datum: ${data.date}`);
+      this.printer.drawLine();
+
       this.printer.tableCustom([
         { text: 'Položka', align: 'LEFT', width: 0.5 },
         { text: 'Ks', align: 'CENTER', width: 0.15 },
         { text: 'Cena', align: 'RIGHT', width: 0.35 }
       ]);
-      
+
       this.printer.drawLine();
 
       data.items.forEach(item => {
-        // Název produktu
+        if (!this.printer) return;
+
         this.printer.println(item.name);
-        
-        // Množství a cena na jednom řádku
+
         const quantityText = `${item.quantity}x`;
         const priceText = `${this.formatCurrency(item.price)}`;
         const totalText = `${this.formatCurrency(item.total)}`;
-        
+
         this.printer.tableCustom([
           { text: '', align: 'LEFT', width: 0.3 },
           { text: quantityText, align: 'LEFT', width: 0.2 },
@@ -118,8 +153,7 @@ class ReceiptPrinter {
       });
 
       this.printer.drawLine();
-      
-      // Celková suma
+
       this.printer.alignRight();
       this.printer.bold(true);
       this.printer.setTextSize(1, 1);
@@ -127,24 +161,21 @@ class ReceiptPrinter {
       this.printer.bold(false);
       this.printer.setTextNormal();
 
-      // Patička
       this.printer.alignCenter();
       this.printer.println('');
       this.printer.println('Děkujeme za návštěvu!');
       this.printer.println('');
-      
-      // Řez papíru
+
       this.printer.cut();
 
-      // Odeslání na tiskárnu
       await this.printer.execute();
-      
+
       return { success: true };
     } catch (error) {
       console.error('Print error:', error);
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Unknown error' 
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
       };
     }
   }
@@ -155,7 +186,31 @@ class ReceiptPrinter {
       currency: 'CZK'
     }).format(amount);
   }
+
+  public async testPrinterConnection(): Promise<{ success: boolean; message: string }> {
+    try {
+      if (!this.printer) {
+        return { success: false, message: 'Tiskárna není inicializována' };
+      }
+
+      this.printer.clear();
+      this.printer.alignCenter();
+      this.printer.println('Test připojení RP-330-L');
+      this.printer.println('IP: 192.168.1.100');
+      this.printer.println('Tiskárna funguje správně');
+      this.printer.cut();
+
+      await this.printer.execute();
+
+      return { success: true, message: 'Připojení k RP-330-L úspěšné (192.168.1.100)' };
+    } catch (error) {
+      console.error('Printer connection test failed:', error);
+      return {
+        success: false,
+        message: `Test připojení selhal: ${error instanceof Error ? error.message : 'Neznámá chyba'}`
+      };
+    }
+  }
 }
 
-// Export singleton instance
 export const receiptPrinter = new ReceiptPrinter();
