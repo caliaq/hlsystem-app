@@ -469,7 +469,7 @@ export default function Sales() {
             {/* Delete Confirmation Modal */}
             {isDeleteModalOpen && selectedOrder && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                    <div className="bg-primary rounded-lg p-6 w-full max-w-md mx-4">
+                    <div className="bg-primary rounded-lg p-2 w-full max-w-md mx-4">
                         <h3 className="text-lg font-bold mb-4 text-text-primary">Potvrdit smazání</h3>
                         <p className="text-text-secondary mb-6">
                             Opravdu chcete smazat tuto objednávku? Tato akce je nevratná.
@@ -495,7 +495,7 @@ export default function Sales() {
             {/* View Order Details Modal */}
             {isViewModalOpen && selectedOrder && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                    <div className="bg-primary rounded-lg p-6 w-full max-w-md mx-4">
+                    <div className="bg-primary rounded-lg p-2 w-full max-w-md mx-4">
                         <div className="flex justify-between items-center mb-4">
                             <h3 className="text-lg font-bold text-text-primary">Detail objednávky</h3>
                             <button

@@ -285,7 +285,7 @@ export default function Metrics() {
             
             {/* Granularity controls */}
             <div className="flex items-center">
-              <span className="text-text-secondary text-sm mr-2">Zobrazit po:</span>
+              <span className="text-text-secondary text-sm mr-2">po:</span>
               <div className="flex space-x-1">
                 <button
                   onClick={() => setDateFilter('day')}
@@ -347,7 +347,7 @@ export default function Metrics() {
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" viewBox="0 0 20 20" fill="currentColor">
                     <path fillRule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a2 2 0 002 2h6a2 2 0 002-2v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8H7v4h6v-4z" clipRule="evenodd" />
                   </svg>
-                  Tisknout přehled
+                  Tisk
                 </>
               )}
             </button>
@@ -365,9 +365,9 @@ export default function Metrics() {
               {error}
             </div>
           ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-2">
               {/* Summary Card */}
-              <div className="bg-primary rounded-lg p-6 shadow-sm">
+              <div className="bg-primary rounded-lg p-2 shadow-sm">
                 <h2 className="text-xl font-semibold text-text-primary mb-4">Souhrn</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="bg-secondary/50 rounded-md p-4">
@@ -388,7 +388,7 @@ export default function Metrics() {
               </div>
 
               {/* Top Products Card */}
-              <div className="bg-primary rounded-lg p-6 shadow-sm">
+              <div className="bg-primary rounded-lg p-2 shadow-sm">
                 <h2 className="text-xl font-semibold text-text-primary mb-4">Top 5 produktů</h2>
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
@@ -417,7 +417,7 @@ export default function Metrics() {
               </div>
 
               {/* Revenue Chart */}
-              <div className="bg-primary rounded-lg p-6 shadow-sm lg:col-span-2">
+              <div className="bg-primary rounded-lg p-2 shadow-sm lg:col-span-2">
                 <h2 className="text-xl font-semibold text-text-primary mb-4">
                   {dateFilter === 'day' 
                     ? 'Vývoj tržeb po dnech' 
@@ -472,7 +472,7 @@ export default function Metrics() {
               </div>
 
               {/* Period Data Table */}
-              <div className="bg-primary rounded-lg p-6 shadow-sm lg:col-span-2">
+              <div className="bg-primary rounded-lg p-2 shadow-sm lg:col-span-2">
                 <h2 className="text-xl font-semibold text-text-primary mb-4">
                   {dateFilter === 'day' 
                     ? 'Detaily po dnech' 

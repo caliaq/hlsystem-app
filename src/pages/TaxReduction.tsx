@@ -126,7 +126,7 @@ export default function TaxReduction() {
         <div className="flex-1 overflow-auto p-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Cost Reduction Form */}
-            <div className="bg-primary rounded-lg p-6 shadow-sm">
+            <div className="bg-primary rounded-lg p-2 shadow-sm">
               <h2 className="text-xl font-bold mb-4 text-text-primary">Nová redukce</h2>
               
               <div className="space-y-4">
@@ -218,7 +218,7 @@ export default function TaxReduction() {
             </div>
 
             {/* History */}
-            <div className="bg-primary rounded-lg p-6 shadow-sm">
+            <div className="bg-primary rounded-lg p-2 shadow-sm">
               <h2 className="text-xl font-bold mb-4 text-text-primary">Historie optimalizací</h2>
               
               {reductionHistory.length === 0 ? (

@@ -188,7 +188,7 @@ export default function Products({ onSelectProduct }: ProductsProps) {
                         </button>
                     </div>
                 ) : (
-                    <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+                    <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1">
                         {products.map((product) => (
                             <div 
                                 key={product._id} 
@@ -212,7 +212,7 @@ export default function Products({ onSelectProduct }: ProductsProps) {
             {/* Edit/Create Product Modal */}
             {isModalOpen && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                    <div className="bg-primary rounded-lg p-6 w-full max-w-md mx-4">
+                    <div className="bg-primary rounded-lg p-2 w-full max-w-md mx-4">
                         <h3 className="text-lg font-bold mb-4 text-text-primary">
                             {selectedProduct ? 'Upravit produkt' : 'Přidat nový produkt'}
                         </h3>
@@ -295,7 +295,7 @@ export default function Products({ onSelectProduct }: ProductsProps) {
             {/* Delete Confirmation Modal */}
             {isDeleteConfirmOpen && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                    <div className="bg-primary rounded-lg p-6 w-full max-w-md mx-4">
+                    <div className="bg-primary rounded-lg p-2 w-full max-w-md mx-4">
                         <h3 className="text-lg font-bold mb-4 text-text-primary">Potvrdit smazání</h3>
                         <p className="text-text-secondary mb-6">
                             Opravdu chcete smazat produkt "{selectedProduct?.name}"? Tato akce je nevratná.

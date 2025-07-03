@@ -56,7 +56,7 @@ export const productService = {
   async updateProduct(id: string, product: Partial<CreateProductDto>): Promise<Product | null> {
     try {
       const response = await fetch(`${ENV.API.ENDPOINTS.PRODUCTS}/${id}`, {
-        method: 'PUT',
+        method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
         },
