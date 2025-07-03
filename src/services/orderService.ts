@@ -121,7 +121,7 @@ export const orderService = {
         }
     },
 
-    async createOrder(orderData: CreateOrderDto): Promise<Order> {
+    async createOrder(orderData: CreateOrderDto): Promise<string> {
         try {
             // Validate product quantities to ensure they're <= 99
             orderData.products.forEach(product => {
@@ -151,11 +151,11 @@ export const orderService = {
             if (!response.ok) {
                 const errorData = await response.json().catch(() => null);
                 console.error('Server error response:', errorData);
-                throw new Error('Failed to create order');
+                throw new Error('Failed to creater order');
             }
             
             const data = await response.json();
-            return this.normalizeOrderData(data);
+            return data.data.orderId;
         } catch (error) {
             console.error('Error creating order:', error);
             throw error;

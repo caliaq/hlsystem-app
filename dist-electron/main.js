@@ -16553,11 +16553,9 @@ class ReceiptPrinter {
         removeSpecialCharacters: false,
         lineCharacter: "-",
         breakLine: nodeThermalPrinter.BreakLine.WORD,
-        options: {
-          timeout: 15e3
-          // Zvýšený timeout pro síťové připojení
-        },
-        width: 48
+        options: {},
+        width: 42
+        // Sníženo pro RP-330-L (standardně 32-40 znaků)
       });
     } catch (error) {
       console.error("Failed to initialize network printer:", error);
@@ -16576,7 +16574,8 @@ class ReceiptPrinter {
         options: {
           timeout: 15e3
         },
-        width: 48
+        width: 32
+        // Konzistentní šířka pro oba typy
       });
     } catch (error) {
       console.error("Failed to initialize printer with fallback config:", error);
@@ -16620,45 +16619,42 @@ class ReceiptPrinter {
       this.printer.setTextSize(1, 1);
       this.printer.bold(true);
       this.printer.println("Hradišťský Vrch");
-      this.printer.bold(true);
+      this.printer.bold(false);
       this.printer.setTextNormal();
       this.printer.println("Konstantinovy Lázně");
       this.printer.println("Provozovatel: HÁJEK - Velin s.r.o.");
       this.printer.println("IČ: 611 73 517");
       this.printer.drawLine();
       this.printer.alignLeft();
-      this.printer.println(`Objednávka: ${data._id}`);
-      this.printer.println(`Datum: ${data.date}`);
-      this.printer.drawLine();
-      this.printer.tableCustom([
-        { text: "Položka", align: "LEFT", width: 0.5 },
-        { text: "Ks", align: "CENTER", width: 0.15 },
-        { text: "Cena", align: "RIGHT", width: 0.35 }
-      ]);
+      if (data.dateFrom && data.dateTo) {
+        this.printer.println(`Přehled za období: ${data.dateFrom} - ${data.dateTo}`);
+      } else if (data.date) {
+        this.printer.println(`Datum: ${data.date}`);
+      }
       this.printer.drawLine();
       data.items.forEach((item) => {
         if (!this.printer) return;
+        this.printer.bold(true);
         this.printer.println(item.name);
+        this.printer.bold(false);
         const quantityText = `${item.quantity}x`;
         const priceText = `${this.formatCurrency(item.price)}`;
         const totalText = `${this.formatCurrency(item.total)}`;
         this.printer.tableCustom([
-          { text: "", align: "LEFT", width: 0.3 },
           { text: quantityText, align: "LEFT", width: 0.2 },
-          { text: priceText, align: "RIGHT", width: 0.25 },
-          { text: totalText, align: "RIGHT", width: 0.25 }
+          { text: priceText, align: "RIGHT", width: 0.3 },
+          { text: totalText, align: "RIGHT", width: 0.4, bold: true }
         ]);
+        this.printer.println("");
       });
       this.printer.drawLine();
-      this.printer.alignRight();
+      this.printer.alignCenter();
       this.printer.bold(true);
       this.printer.setTextSize(1, 1);
       this.printer.println(`CELKEM: ${this.formatCurrency(data.totalAmount)}`);
       this.printer.bold(false);
       this.printer.setTextNormal();
-      this.printer.alignCenter();
       this.printer.println("");
-      this.printer.println("Děkujeme za návštěvu!");
       this.printer.println("");
       this.printer.cut();
       await this.printer.execute();

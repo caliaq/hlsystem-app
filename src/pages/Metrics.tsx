@@ -153,17 +153,11 @@ export default function Metrics() {
         .filter(product => product.quantity > 0) // Only products that were sold
         .sort((a, b) => b.revenue - a.revenue);
       
-      // Format period for display
-      const formatPeriodForPrint = () => {
-        const start = new Date(startDate).toLocaleDateString('cs-CZ');
-        const end = new Date(endDate).toLocaleDateString('cs-CZ');
-        return `${start} - ${end}`;
-      };
-      
       // Prepare receipt data for metrics summary - simple format
       const receiptData = {
         orderNumber: `PŘEHLED-${Date.now()}`,
-        date: new Date().toLocaleString('cs-CZ'),
+        dateFrom: new Date(startDate).toLocaleDateString('cs-CZ'),
+        dateTo: new Date(endDate).toLocaleDateString('cs-CZ'),
         items: productsSorted.map(product => ({
           name: product.name,
           quantity: product.quantity,
@@ -171,8 +165,7 @@ export default function Metrics() {
           total: product.revenue
         })),
         totalAmount: totalRevenue,
-        storeName: 'Hradišťský Vrch',
-        storeAddress: `Období: ${formatPeriodForPrint()}`
+        storeName: 'Hradišťský Vrch'
       };
 
       // Print receipt

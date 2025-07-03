@@ -12,14 +12,14 @@ interface OverviewProps {
 export default function Overview({ selectedProducts = [], onClearOrder }: OverviewProps) {
     const [orderProducts, setOrderProducts] = useState<OrderProduct[]>([]);
     const [isProcessing, setIsProcessing] = useState(false);
-    
+
     // Watch for new products being selected and add them to the order
     useEffect(() => {
         // Check if we have a new product selection
         if (selectedProducts.length > 0) {
             // Get the last selected product (the most recent one)
             const lastSelectedProduct = selectedProducts[selectedProducts.length - 1];
-            
+
             // Add only the most recently selected product to avoid duplicates
             addToOrder(lastSelectedProduct);
         }
@@ -29,19 +29,19 @@ export default function Overview({ selectedProducts = [], onClearOrder }: Overvi
     const addToOrder = (product: ProductType) => {
         setOrderProducts(prev => {
             const existing = prev.find(item => item.product._id === product._id);
-            
+
             if (existing) {
                 // Increment quantity if product already exists in order
-                return prev.map(item => 
-                    item.product._id === product._id 
-                        ? { ...item, quantity: item.quantity + 1 } 
+                return prev.map(item =>
+                    item.product._id === product._id
+                        ? { ...item, quantity: item.quantity + 1 }
                         : item
                 );
             }
-            
+
             // Add new product to order
-            return [...prev, { 
-                product, 
+            return [...prev, {
+                product,
                 quantity: 1,
                 _id: `${product._id}-${Date.now()}` // Create unique ID for this order item
             }];
@@ -55,8 +55,8 @@ export default function Overview({ selectedProducts = [], onClearOrder }: Overvi
             return;
         }
 
-        setOrderProducts(prev => 
-            prev.map(item => 
+        setOrderProducts(prev =>
+            prev.map(item =>
                 item._id === itemId ? { ...item, quantity: newQuantity } : item
             )
         );
@@ -87,7 +87,7 @@ export default function Overview({ selectedProducts = [], onClearOrder }: Overvi
 
         try {
             setIsProcessing(true);
-            
+
             const orderData: CreateOrderDto = {
                 products: orderProducts.map(item => ({
                     productId: item.product._id,
@@ -95,12 +95,12 @@ export default function Overview({ selectedProducts = [], onClearOrder }: Overvi
                 })),
                 date: new Date().toISOString()
             };
-            
-            const createdOrder = await orderService.createOrder(orderData);
-            
+
+            const orderId = await orderService.createOrder(orderData);
+
             // Připravení dat pro tisk
             const receiptData = {
-                orderNumber: createdOrder._id || 'N/A',
+                orderNumber: orderId || 'N/A',
                 date: new Date().toLocaleString('cs-CZ'),
                 items: orderProducts.map(item => ({
                     name: item.product.name,
@@ -115,9 +115,9 @@ export default function Overview({ selectedProducts = [], onClearOrder }: Overvi
 
             // Tisk účtenky
             const printResult = await printerService.printReceipt(receiptData);
-            
+
             clearOrder();
-            
+
             if (printResult.success) {
                 alert(`Objednávka dokončena a účtenka vytisknuta!\nCelková cena: ${formatPrice(totalPrice)}`);
             } else {
@@ -135,14 +135,13 @@ export default function Overview({ selectedProducts = [], onClearOrder }: Overvi
         <div className="w-full h-full bg-primary flex flex-col p-4">
             <div className="flex justify-between items-center mb-4">
                 <h2 className="text-lg font-bold text-text-primary">Objednávka</h2>
-                <button 
+                <button
                     onClick={clearOrder}
                     disabled={orderProducts.length === 0}
-                    className={`px-3 py-1 text-text-primary rounded-md text-sm transition-colors ${
-                        orderProducts.length === 0 
-                            ? 'bg-error/40 cursor-not-allowed' 
+                    className={`px-3 py-1 text-text-primary rounded-md text-sm transition-colors ${orderProducts.length === 0
+                            ? 'bg-error/40 cursor-not-allowed'
                             : 'bg-error/80 hover:bg-error'
-                    }`}
+                        }`}
                 >
                     Vymazat
                 </button>
@@ -167,14 +166,14 @@ export default function Overview({ selectedProducts = [], onClearOrder }: Overvi
                                         <p className="text-text-secondary text-xs">{formatPrice(item.product.price)}</p>
                                     </div>
                                     <div className="flex items-center space-x-2">
-                                        <button 
+                                        <button
                                             onClick={() => updateQuantity(item._id!, item.quantity - 1)}
                                             className="w-6 h-6 bg-secondary rounded-full flex items-center justify-center text-text-primary hover:bg-primary text-sm"
                                         >
                                             -
                                         </button>
                                         <span className="text-text-primary min-w-[2rem] text-center">{item.quantity}</span>
-                                        <button 
+                                        <button
                                             onClick={() => updateQuantity(item._id!, item.quantity + 1)}
                                             className="w-6 h-6 bg-secondary rounded-full flex items-center justify-center text-text-primary hover:bg-primary text-sm"
                                         >
@@ -190,21 +189,20 @@ export default function Overview({ selectedProducts = [], onClearOrder }: Overvi
                             ))}
                         </div>
                     </div>
-                    
+
                     <div className="mt-4 border-t border-text-secondary/10 pt-4">
                         <div className="flex justify-between items-center mb-4">
                             <span className="text-text-primary font-medium">Celkem</span>
                             <span className="text-text-primary text-xl font-bold">{formatPrice(totalPrice)}</span>
                         </div>
-                        
-                        <button 
+
+                        <button
                             onClick={handleCompleteSale}
                             disabled={orderProducts.length === 0 || isProcessing}
-                            className={`w-full py-3 text-text-primary rounded-md transition-colors ${
-                                orderProducts.length === 0 || isProcessing
-                                    ? 'bg-success/40 cursor-not-allowed' 
+                            className={`w-full py-3 text-text-primary rounded-md transition-colors ${orderProducts.length === 0 || isProcessing
+                                    ? 'bg-success/40 cursor-not-allowed'
                                     : 'bg-success hover:bg-success/80'
-                            }`}
+                                }`}
                         >
                             {isProcessing ? (
                                 <div className="flex items-center justify-center">

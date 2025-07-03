@@ -391,7 +391,7 @@ export default function Sales() {
                                     {filteredOrders.map((order) => (
                                         <tr key={order._id} className="border-b border-secondary/30 hover:bg-secondary/20">
                                             <td className="px-4 py-3 font-mono text-xs">
-                                                {order._id.slice(-8)}...
+                                                ...{order._id.slice(12)}
                                             </td>
                                             <td className="px-4 py-3">
                                                 {formatDate(order.createdAt)}

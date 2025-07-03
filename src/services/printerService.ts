@@ -1,6 +1,8 @@
 export interface PrintReceiptData {
-  orderNumber: string;
-  date: string;
+  orderNumber?: string;
+  dateFrom?: string;
+  dateTo?: string;
+  date?: string; // Pro zpětnou kompatibilitu
   items: Array<{
     name: string;
     quantity: number;
