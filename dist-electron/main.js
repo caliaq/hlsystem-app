@@ -20406,25 +20406,46 @@ function abortHandshakeOrEmitwsClientError(server, req, socket, code, message, h
 const WebSocketServer$1 = /* @__PURE__ */ getDefaultExportFromCjs(websocketServer);
 function getFFmpegPath() {
   try {
-    const ffmpegPath = execSync("where ffmpeg", { encoding: "utf8" }).trim().split("\n")[0];
-    return ffmpegPath;
-  } catch (error) {
-    const commonPaths = [
-      "C:\\ffmpeg\\bin\\ffmpeg.exe",
-      "C:\\Program Files\\ffmpeg\\bin\\ffmpeg.exe",
-      "C:\\Program Files (x86)\\ffmpeg\\bin\\ffmpeg.exe",
-      require$$1$3.join(process.env.LOCALAPPDATA || "", "Microsoft\\WinGet\\Packages\\Gyan.FFmpeg_Microsoft.Winget.Source_8wekyb3d8bbwe\\ffmpeg-7.1.1-full_build\\bin\\ffmpeg.exe")
-    ];
-    for (const path2 of commonPaths) {
-      try {
-        execSync(`"${path2}" -version`, { stdio: "ignore" });
-        return path2;
-      } catch (e) {
-        continue;
-      }
-    }
-    throw new Error("FFmpeg not found");
+    execSync("ffmpeg -version", { stdio: "ignore", timeout: 5e3 });
+    console.log("FFmpeg found in PATH");
+    return "ffmpeg";
+  } catch (e) {
+    console.log("FFmpeg not found in PATH");
   }
+  const commonPaths = [
+    "C:\\ffmpeg\\bin\\ffmpeg.exe",
+    "C:\\ffmpeg\\ffmpeg-2025-07-10-git-82aeee3c19-essentials_build\\bin\\ffmpeg.exe",
+    "C:\\Program Files\\ffmpeg\\bin\\ffmpeg.exe",
+    "C:\\Program Files (x86)\\ffmpeg\\bin\\ffmpeg.exe"
+  ];
+  for (const testPath of commonPaths) {
+    try {
+      console.log("Testing FFmpeg path:", testPath);
+      execSync(`"${testPath}" -version`, { stdio: "ignore", timeout: 5e3 });
+      console.log("FFmpeg found at:", testPath);
+      return testPath;
+    } catch (e) {
+      console.log("FFmpeg not found at:", testPath);
+      continue;
+    }
+  }
+  const downloadPaths = [
+    "C:\\Users\\%USERNAME%\\Downloads\\ffmpeg\\bin\\ffmpeg.exe",
+    "C:\\Tools\\ffmpeg\\bin\\ffmpeg.exe",
+    "C:\\ffmpeg-master-latest-win64-gpl\\bin\\ffmpeg.exe"
+  ];
+  for (const testPath of downloadPaths) {
+    try {
+      const expandedPath = testPath.replace("%USERNAME%", process.env.USERNAME || "");
+      console.log("Testing download path:", expandedPath);
+      execSync(`"${expandedPath}" -version`, { stdio: "ignore", timeout: 5e3 });
+      console.log("FFmpeg found at:", expandedPath);
+      return expandedPath;
+    } catch (e) {
+      continue;
+    }
+  }
+  throw new Error("FFmpeg not found. Please install FFmpeg:\\n1. Download from https://ffmpeg.org/download.html\\n2. Extract to C:\\\\ffmpeg\\\\ or add to PATH\\n3. Or try: winget install Gyan.FFmpeg");
 }
 class RTSPStreamServer {
   constructor() {
@@ -20493,7 +20514,10 @@ class RTSPStreamServer {
       });
     });
     ffmpegProcess.stderr.on("data", (data) => {
-      console.error(`FFmpeg stderr for ${streamId}:`, data.toString());
+      const errorText = data.toString();
+      if (!errorText.includes("Non-monotonic DTS") && !errorText.includes("changing to") && !errorText.includes("incorrect timestamps")) {
+        console.error(`FFmpeg stderr for ${streamId}:`, errorText);
+      }
     });
     ffmpegProcess.on("error", (error) => {
       console.error(`FFmpeg error for ${streamId}:`, error);

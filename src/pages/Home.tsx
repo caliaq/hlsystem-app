@@ -24,13 +24,13 @@ export default function Home() {
                     <Products onSelectProduct={handleSelectProduct} />
                 </div>
                 <div className="flex flex-col w-1/2 flex-1">
-                    <div className="w-full h-1/2">
+                    <div className="w-full h-2/3">
                         <Overview 
                             selectedProducts={selectedProducts} 
                             onClearOrder={handleClearOrder}
                         />
                     </div>
-                    <div className="w-full h-1/2">
+                    <div className="w-full h-1/3">
                         <Gates />
                     </div>
                 </div>
