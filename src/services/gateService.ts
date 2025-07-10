@@ -1,82 +1,15 @@
-import { ENV } from "../config/env";
-import { Gate, CreateGateDto } from '../types/gate';
+import { ENV } from '../config/env';
+import { Gate } from '../types/gate';
 
-export const gateService = {
-  async getGates(): Promise<Gate[]> {
-    try {
-      const response = await fetch(ENV.API.ENDPOINTS.GATES);
-      if (!response.ok) {
-        throw new Error('Failed to fetch gates');
-      }
-      return await response.json();
-    } catch (error) {
-      console.error('Error fetching gates:', error);
-      throw error;
-    }
-  },
+export async function getGate(): Promise<Gate[]> {
+  const response = await fetch(`${ENV.API.ENDPOINTS.GATES}/686eb0ee9984cab163af5d5b`, {
+  });
 
-  async getGateById(id: string): Promise<Gate> {
-    try {
-      const response = await fetch(`${ENV.API.ENDPOINTS.GATES}/${id}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch gate');
-      }
-      return await response.json();
-    } catch (error) {
-      console.error(`Error fetching gate with id ${id}:`, error);
-      throw error;
-    }
-  },
+  if (!response.ok) {
+    throw new Error(`Error fetching gates: ${response.statusText}`);
+  }
 
-  async createGate(gate: CreateGateDto): Promise<Gate> {
-    try {
-      const response = await fetch(ENV.API.ENDPOINTS.GATES, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(gate),
-      });
-      if (!response.ok) {
-        throw new Error('Failed to create gate');
-      }
-      return await response.json();
-    } catch (error) {
-      console.error('Error creating gate:', error);
-      throw error;
-    }
-  },
+  const { data } = await response.json();
+  return data as Gate[];
+}
 
-  async updateGate(id: string, gate: Partial<CreateGateDto>): Promise<Gate> {
-    try {
-      const response = await fetch(`${ENV.API.ENDPOINTS.GATES}/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(gate),
-      });
-      if (!response.ok) {
-        throw new Error('Failed to update gate');
-      }
-      return await response.json();
-    } catch (error) {
-      console.error(`Error updating gate with id ${id}:`, error);
-      throw error;
-    }
-  },
-
-  async deleteGate(id: string): Promise<void> {
-    try {
-      const response = await fetch(`${ENV.API.ENDPOINTS.GATES}/${id}`, {
-        method: 'DELETE',
-      });
-      if (!response.ok) {
-        throw new Error('Failed to delete gate');
-      }
-    } catch (error) {
-      console.error(`Error deleting gate with id ${id}:`, error);
-      throw error;
-    }
-  },
-};
