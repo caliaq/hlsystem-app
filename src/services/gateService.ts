@@ -9,7 +9,16 @@ export async function getGate(): Promise<Gate[]> {
     throw new Error(`Error fetching gates: ${response.statusText}`);
   }
 
-  const { data } = await response.json();
-  return data as Gate[];
+  const responseData = await response.json();
+  
+  // Check if response has success property and extract data
+  if (responseData.success && responseData.data) {
+    const data = responseData.data;
+    // Ensure we always return an array
+    return Array.isArray(data) ? data : [data];
+  } else {
+    // Fallback for responses without success wrapper
+    return Array.isArray(responseData) ? responseData : [responseData];
+  }
 }
 

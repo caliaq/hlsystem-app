@@ -24,6 +24,9 @@ declare global {
     electronAPI?: {
       printReceipt: (data: PrintReceiptData) => Promise<{ success: boolean; error?: string }>;
       getPrinters: () => Promise<any[]>;
+      startRTSPStream: (rtspUrl: string, streamId: string) => Promise<{ success: boolean; port?: number; error?: string }>;
+      stopRTSPStream: (streamId: string) => Promise<{ success: boolean; error?: string }>;
+      getStreamPort: (streamId: string) => Promise<{ success: boolean; port?: number | null }>;
     }
   }
 }

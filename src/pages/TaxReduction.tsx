@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Product, productService } from '../services/productService';
+import { productService } from '../services/productService';
+import { Product } from '../types/product';
 import { orderService } from '../services/orderService';
 
 interface TaxReductionItem {

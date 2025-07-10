@@ -1,7 +1,8 @@
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, ipcMain } from 'electron'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 import './printer' // Import printer module
+import { rtspStreamServer } from './rtspServer'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -27,12 +28,21 @@ let win: BrowserWindow | null
 
 function createWindow() {
   win = new BrowserWindow({
+    width: 1200,
+    height: 800,
+    show: false,
     icon: path.join(process.env.VITE_PUBLIC, 'electron-vite.svg'),
     webPreferences: {
-      preload: path.join(__dirname, 'preload.mjs'),
+      preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
       contextIsolation: true
     },
+  })
+
+  // Show window when ready
+  win.once('ready-to-show', () => {
+    win?.show()
+    win?.focus()
   })
 
   // Test active push message to Renderer-process.
@@ -41,9 +51,10 @@ function createWindow() {
   })
 
   if (VITE_DEV_SERVER_URL) {
+    console.log('Loading dev server URL:', VITE_DEV_SERVER_URL)
     win.loadURL(VITE_DEV_SERVER_URL)
   } else {
-    // win.loadFile('dist/index.html')
+    console.log('Loading production build')
     win.loadFile(path.join(RENDERER_DIST, 'index.html'))
   }
 }
@@ -66,4 +77,37 @@ app.on('activate', () => {
   }
 })
 
-app.whenReady().then(createWindow)
+app.whenReady().then(() => {
+  createWindow()
+  
+  // Setup IPC handlers for RTSP streams
+  ipcMain.handle('start-rtsp-stream', async (event, rtspUrl: string, streamId: string) => {
+    try {
+      const port = await rtspStreamServer.startStream(rtspUrl, streamId);
+      return { success: true, port };
+    } catch (error) {
+      console.error('Error starting RTSP stream:', error);
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+    }
+  });
+
+  ipcMain.handle('stop-rtsp-stream', (event, streamId: string) => {
+    try {
+      rtspStreamServer.stopStream(streamId);
+      return { success: true };
+    } catch (error) {
+      console.error('Error stopping RTSP stream:', error);
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+    }
+  });
+
+  ipcMain.handle('get-stream-port', (event, streamId: string) => {
+    const port = rtspStreamServer.getStreamPort(streamId);
+    return { success: true, port };
+  });
+})
+
+// Cleanup streams on quit
+app.on('before-quit', () => {
+  rtspStreamServer.stopAllStreams();
+});

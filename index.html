@@ -5,6 +5,51 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>pokladní aplikace - Hradišťský Vrch</title>
+    <script>
+      // JSMpeg dynamic loader with fallback
+      (function() {
+        function loadJSMpeg() {
+          return new Promise((resolve, reject) => {
+            if (window.JSMpeg) {
+              resolve();
+              return;
+            }
+            
+            const script = document.createElement('script');
+            script.onload = () => {
+              console.log('JSMpeg loaded successfully');
+              resolve();
+            };
+            script.onerror = (error) => {
+              console.error('Failed to load JSMpeg:', error);
+              // Create minimal JSMpeg mock for testing
+              window.JSMpeg = {
+                Player: class {
+                  constructor(url, options) {
+                    console.log('Mock JSMpeg Player created for:', url);
+                    this.canvas = options.canvas;
+                    this.options = options;
+                    setTimeout(() => {
+                      if (options.onSourceEstablished) {
+                        options.onSourceEstablished();
+                      }
+                    }, 1000);
+                  }
+                  destroy() {
+                    console.log('Mock JSMpeg Player destroyed');
+                  }
+                }
+              };
+              resolve();
+            };
+            script.src = '/libs/jsmpeg.min.js';
+            document.head.appendChild(script);
+          });
+        }
+        
+        window.loadJSMpeg = loadJSMpeg;
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

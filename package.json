@@ -10,17 +10,24 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "bufferutil": "^4.0.9",
+    "express": "^5.1.0",
     "hls.js": "^1.6.7",
     "jsmpeg": "^1.0.0",
     "node-thermal-printer": "^4.5.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^7.6.0",
-    "recharts": "^2.15.3"
+    "recharts": "^2.15.3",
+    "utf-8-validate": "^5.0.10",
+    "ws": "^8.18.3"
   },
   "devDependencies": {
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.0.12",
     "@types/react": "^18.2.64",
     "@types/react-dom": "^18.2.21",
+    "@types/ws": "^8.18.1",
     "@typescript-eslint/eslint-plugin": "^7.1.1",
     "@typescript-eslint/parser": "^7.1.1",
     "@vitejs/plugin-react": "^4.2.1",
