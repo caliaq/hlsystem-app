@@ -1,6 +1,22 @@
 import { NavLink } from "react-router-dom";
+import { useState } from "react";
 
 export default function Navigation() {
+    const [isCheckingUpdates, setIsCheckingUpdates] = useState(false);
+
+    const handleCheckForUpdates = async () => {
+        if (window.electronAPI && !isCheckingUpdates) {
+            setIsCheckingUpdates(true);
+            try {
+                await window.electronAPI.checkForUpdates();
+                // Reset stavu po 3 sekundách
+                setTimeout(() => setIsCheckingUpdates(false), 3000);
+            } catch (error) {
+                console.error('Error checking for updates:', error);
+                setIsCheckingUpdates(false);
+            }
+        }
+    };
     const navItems = [
         {
             path: "/",
@@ -64,6 +80,32 @@ export default function Navigation() {
                         {item.icon}
                     </NavLink>
                 ))}
+            </div>
+
+            {/* Utility tlačítka - na spodku navigace */}
+            <div className="mt-auto mb-4 flex flex-col items-center space-y-4">
+                {/* Tlačítko pro kontrolu aktualizací */}
+                {window.electronAPI && (
+                    <button
+                        onClick={handleCheckForUpdates}
+                        disabled={isCheckingUpdates}
+                        className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors duration-200 ${
+                            isCheckingUpdates 
+                                ? "bg-gray-400 cursor-not-allowed" 
+                                : "bg-text-secondary hover:bg-text-primary hover:scale-110"
+                        }`}
+                        title={isCheckingUpdates ? "Kontroluji aktualizace..." : "Zkontrolovat aktualizace"}
+                    >
+                        <svg 
+                            xmlns="http://www.w3.org/2000/svg" 
+                            className={`h-5 w-5 text-primary ${isCheckingUpdates ? 'animate-spin' : ''}`} 
+                            viewBox="0 0 20 20" 
+                            fill="currentColor"
+                        >
+                            <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
+                        </svg>
+                    </button>
+                )}
             </div>
         </nav>
     );
