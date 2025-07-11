@@ -3,6 +3,8 @@
   "private": true,
   "version": "1.0.1",
   "type": "module",
+  "description": "Aplikace pro správu pokladny s automatickými aktualizacemi",
+  "author": "caliaq",
   "homepage": "https://github.com/caliaq/hlsystem-app",
   "repository": {
     "type": "git",
