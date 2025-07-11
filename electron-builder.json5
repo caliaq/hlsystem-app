@@ -3,7 +3,7 @@
   "$schema": "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json",
   "appId": "com.hlsystem.app",
   "asar": true,
-  "productName": "pokladní aplikace - Hradišstký Vrch",
+  "productName": "HLSystem App",
   "directories": {
     "output": "release/${version}"
   },
@@ -31,7 +31,7 @@
         ]
       }
     ],
-    "artifactName": "${productName}-Windows-${version}-Setup.${ext}",
+    "artifactName": "hlsystem-app-setup-${version}.${ext}",
     "sign": null,
     "publisherName": "HLSystem"
   },
