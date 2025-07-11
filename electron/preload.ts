@@ -8,6 +8,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   startRTSPStream: (rtspUrl: string, streamId: string) => ipcRenderer.invoke('start-rtsp-stream', rtspUrl, streamId),
   stopRTSPStream: (streamId: string) => ipcRenderer.invoke('stop-rtsp-stream', streamId),
   getStreamPort: (streamId: string) => ipcRenderer.invoke('get-stream-port', streamId),
+  // RTSP diagnostics
+  rtspDiagnostics: () => ipcRenderer.invoke('rtsp-diagnostics'),
   // Auto-updater APIs
   checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
   restartApp: () => ipcRenderer.invoke('restart-app'),
@@ -24,6 +26,7 @@ export interface ElectronAPI {
   startRTSPStream: (rtspUrl: string, streamId: string) => Promise<{ success: boolean; port?: number; error?: string }>;
   stopRTSPStream: (streamId: string) => Promise<{ success: boolean; error?: string }>;
   getStreamPort: (streamId: string) => Promise<{ success: boolean; port?: number | null }>;
+  rtspDiagnostics: () => Promise<{ success: boolean; diagnostics?: any; error?: string }>;
   checkForUpdates: () => Promise<void>;
   restartApp: () => Promise<void>;
   onUpdateAvailable: (callback: () => void) => void;

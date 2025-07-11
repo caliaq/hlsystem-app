@@ -161,6 +161,16 @@ app.whenReady().then(() => {
     return { success: true, port };
   });
 
+  // RTSP diagnostics handler
+  ipcMain.handle('rtsp-diagnostics', async () => {
+    try {
+      const diagnostics = await (rtspStreamServer as any).runDiagnostics();
+      return { success: true, diagnostics };
+    } catch (error) {
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+    }
+  });
+
   // Auto-updater IPC handlers
   ipcMain.handle('check-for-updates', () => {
     autoUpdater.checkForUpdatesAndNotify()

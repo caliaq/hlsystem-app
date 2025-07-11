@@ -1,7 +1,7 @@
 {
   "name": "hlsystem-app",
   "private": true,
-  "version": "1.0.6",
+  "version": "1.0.7",
   "type": "module",
   "description": "Aplikace pro správu pokladny s automatickými aktualizacemi",
   "author": "caliaq",

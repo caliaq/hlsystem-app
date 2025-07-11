@@ -5,6 +5,10 @@ import { spawn, ChildProcess } from 'child_process';
 import { createServer } from 'http';
 import path from 'path';
 import { execSync } from 'child_process';
+import { promisify } from 'util';
+import { exec } from 'child_process';
+
+const execAsync = promisify(exec);
 
 // Get FFmpeg path
 function getFFmpegPath(): string {
@@ -69,16 +73,170 @@ interface StreamInstance {
   port: number;
 }
 
+
+// Test RTSP connectivity
+async function testRTSPConnection(rtspUrl: string, timeoutMs = 10000): Promise<{
+  success: boolean;
+  error?: string;
+  details?: string;
+}> {
+  return new Promise((resolve) => {
+    const ffmpegPath = getFFmpegPath();
+    
+    // Use FFprobe to test RTSP connection
+    const testProcess = spawn(ffmpegPath, [
+      '-rtsp_transport', 'tcp',
+      '-i', rtspUrl,
+      '-t', '1', // Test for 1 second
+      '-f', 'null',
+      '-'
+    ]);
+
+    let hasResponded = false;
+    const timeout = setTimeout(() => {
+      if (!hasResponded) {
+        hasResponded = true;
+        testProcess.kill();
+        resolve({
+          success: false,
+          error: 'Connection timeout',
+          details: `RTSP stream did not respond within ${timeoutMs}ms`
+        });
+      }
+    }, timeoutMs);
+
+    let errorOutput = '';
+    testProcess.stderr.on('data', (data) => {
+      errorOutput += data.toString();
+    });
+
+    testProcess.on('exit', (code) => {
+      if (!hasResponded) {
+        hasResponded = true;
+        clearTimeout(timeout);
+        
+        if (code === 0 || errorOutput.includes('frame=')) {
+          resolve({ success: true });
+        } else {
+          resolve({
+            success: false,
+            error: `FFmpeg exit code: ${code}`,
+            details: errorOutput.substring(0, 500) // Limit error output
+          });
+        }
+      }
+    });
+
+    testProcess.on('error', (error) => {
+      if (!hasResponded) {
+        hasResponded = true;
+        clearTimeout(timeout);
+        resolve({
+          success: false,
+          error: error.message,
+          details: 'Failed to start FFmpeg process'
+        });
+      }
+    });
+  });
+}
+
 export class RTSPStreamServer {
   private streams: Map<string, StreamInstance> = new Map();
   private basePort = 9999;
   private currentPort = this.basePort;
 
+  // Run system diagnostics
+  private async runDiagnostics(): Promise<{
+    ffmpegAvailable: boolean;
+    ffmpegVersion: string | null;
+    networkInfo: any;
+    systemInfo: any;
+  }> {
+    const diagnostics = {
+      ffmpegAvailable: false,
+      ffmpegVersion: null as string | null,
+      networkInfo: {},
+      systemInfo: {}
+    };
+
+    // Check FFmpeg
+    try {
+      const ffmpegPath = getFFmpegPath();
+      const { stdout } = await execAsync(`"${ffmpegPath}" -version`);
+      diagnostics.ffmpegAvailable = true;
+      diagnostics.ffmpegVersion = stdout.split('\n')[0];
+      console.log('✅ FFmpeg available:', diagnostics.ffmpegVersion);
+    } catch (error) {
+      console.log('❌ FFmpeg not available:', error);
+    }
+
+    // Check network info
+    try {
+      const { stdout } = await execAsync('ipconfig');
+      diagnostics.networkInfo = { ipconfig: stdout.substring(0, 500) }; // Limit output
+    } catch (error) {
+      console.log('Network info check failed:', error);
+    }
+
+    // Check system info
+    try {
+      diagnostics.systemInfo = {
+        platform: process.platform,
+        arch: process.arch,
+        nodeVersion: process.version,
+        env: {
+          PATH: process.env.PATH ? 'SET' : 'NOT_SET',
+          USERNAME: process.env.USERNAME || 'UNKNOWN'
+        }
+      };
+    } catch (error) {
+      console.log('System info check failed:', error);
+    }
+
+    return diagnostics;
+  }
+
   async startStream(rtspUrl: string, streamId: string): Promise<number> {
     // Check if stream already exists
     if (this.streams.has(streamId)) {
+      console.log(`Stream ${streamId} already exists, returning existing port`);
       return this.streams.get(streamId)!.port;
     }
+
+    console.log(`🔄 Starting diagnostics for stream ${streamId}`);
+    
+    // Run system diagnostics
+    const diagnostics = await this.runDiagnostics();
+    console.log('System diagnostics:', JSON.stringify(diagnostics, null, 2));
+    
+    if (!diagnostics.ffmpegAvailable) {
+      throw new Error(`FFmpeg is not available on this system. Please install FFmpeg:\n` +
+        `1. Download from https://ffmpeg.org/download.html\n` +
+        `2. Extract to C:\\ffmpeg\\ or add to PATH\n` +
+        `3. Or try: winget install Gyan.FFmpeg`);
+    }
+
+    // Test RTSP connection first
+    console.log(`🔄 Testing RTSP connection for ${streamId}: ${rtspUrl}`);
+    const connectionTest = await testRTSPConnection(rtspUrl, 15000);
+    
+    if (!connectionTest.success) {
+      const errorMsg = `Failed to connect to RTSP stream ${streamId}:\n` +
+        `URL: ${rtspUrl}\n` +
+        `Error: ${connectionTest.error}\n` +
+        `Details: ${connectionTest.details}\n\n` +
+        `Possible causes:\n` +
+        `1. Camera is not reachable from this network\n` +
+        `2. RTSP URL is incorrect\n` +
+        `3. Camera requires authentication\n` +
+        `4. Network firewall blocking connection`;
+      
+      console.error('❌ RTSP Connection Test Failed:', errorMsg);
+      throw new Error(errorMsg);
+    }
+    
+    console.log(`✅ RTSP connection test successful for ${streamId}`);
 
     const port = this.currentPort++;
     
@@ -205,6 +363,57 @@ export class RTSPStreamServer {
   getStreamPort(streamId: string): number | null {
     const streamInstance = this.streams.get(streamId);
     return streamInstance ? streamInstance.port : null;
+  }
+
+  // Diagnostic function to check system capabilities
+  async runDiagnostics(): Promise<{
+    ffmpegAvailable: boolean;
+    ffmpegVersion: string | null;
+    networkInfo: any;
+    systemInfo: any;
+  }> {
+    const diagnostics = {
+      ffmpegAvailable: false,
+      ffmpegVersion: null as string | null,
+      networkInfo: {},
+      systemInfo: {}
+    };
+
+    // Check FFmpeg
+    try {
+      const ffmpegPath = getFFmpegPath();
+      const { stdout } = await execAsync(`"${ffmpegPath}" -version`);
+      diagnostics.ffmpegAvailable = true;
+      diagnostics.ffmpegVersion = stdout.split('\n')[0];
+      console.log('✅ FFmpeg available:', diagnostics.ffmpegVersion);
+    } catch (error) {
+      console.log('❌ FFmpeg not available:', error);
+    }
+
+    // Check network info
+    try {
+      const { stdout } = await execAsync('ipconfig');
+      diagnostics.networkInfo = { ipconfig: stdout.substring(0, 500) }; // Limit output
+    } catch (error) {
+      console.log('Network info check failed:', error);
+    }
+
+    // Check system info
+    try {
+      diagnostics.systemInfo = {
+        platform: process.platform,
+        arch: process.arch,
+        nodeVersion: process.version,
+        env: {
+          PATH: process.env.PATH ? 'SET' : 'NOT_SET',
+          USERNAME: process.env.USERNAME || 'UNKNOWN'
+        }
+      };
+    } catch (error) {
+      console.log('System info check failed:', error);
+    }
+
+    return diagnostics;
   }
 }
 

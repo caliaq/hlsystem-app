@@ -27,6 +27,8 @@ declare global {
       startRTSPStream: (rtspUrl: string, streamId: string) => Promise<{ success: boolean; port?: number; error?: string }>;
       stopRTSPStream: (streamId: string) => Promise<{ success: boolean; error?: string }>;
       getStreamPort: (streamId: string) => Promise<{ success: boolean; port?: number | null }>;
+      // RTSP diagnostics
+      rtspDiagnostics: () => Promise<{ success: boolean; diagnostics?: any; error?: string }>;
       // Auto-updater APIs
       checkForUpdates: () => Promise<void>;
       restartApp: () => Promise<void>;

@@ -2,11 +2,13 @@ import { useEffect, useState } from 'react';
 import { getGate, toggleGate } from '../services/gateService';
 import { Gate } from '../types/gate';
 import RTSPStream from './RTSPStream';
+import RTSPDiagnostics from './RTSPDiagnostics';
 
 export default function Gates() {
     const [gate, setGate] = useState<Gate[]>([]);
     const [isGateOpen, setIsGateOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [showDiagnostics, setShowDiagnostics] = useState(false);
 
     const handleGateToggle = async () => {
         setIsLoading(true);
@@ -43,6 +45,16 @@ export default function Gates() {
         <div className="p-6">
             <div className="mb-6 flex justify-between items-center">
                 <button
+                    onClick={() => setShowDiagnostics(true)}
+                    className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2"
+                >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Camera Diagnostics
+                </button>
+                
+                <button
                     onClick={handleGateToggle}
                     disabled={isLoading}
                     className={`px-6 py-2 mx-auto rounded-lg font-medium transition-colors ${
@@ -53,6 +65,8 @@ export default function Gates() {
                 >
                     {isLoading ? 'Loading...' : isGateOpen ? 'Close Gate' : 'Open Gate'}
                 </button>
+                
+                <div></div> {/* Spacer for center alignment */}
             </div>
             {gate.map((g) => (
                 <div key={g._id} className="mb-2 rounded-lg">
@@ -79,6 +93,12 @@ export default function Gates() {
                     </div>
                 </div>
             ))}
+            
+            {/* Diagnostics Modal */}
+            <RTSPDiagnostics 
+                isOpen={showDiagnostics} 
+                onClose={() => setShowDiagnostics(false)} 
+            />
         </div>
     );
 }
