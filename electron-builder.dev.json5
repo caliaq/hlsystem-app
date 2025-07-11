@@ -1,16 +1,11 @@
-// @see - https://www.electron.build/configuration/configuration
+// Vývojová konfigurace electron-builder (bez auto-updater)
 {
   "$schema": "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json",
-  "appId": "com.hlsystem.app",
+  "appId": "com.hlsystem.app.dev",
   "asar": true,
-  "productName": "pokladní aplikace - Hradišstký Vrch",
+  "productName": "pokladní aplikace - Hradišstký Vrch (DEV)",
   "directories": {
     "output": "release/${version}"
-  },
-  "publish": {
-    "provider": "github",
-    "owner": "caliaq",
-    "repo": "hlsystem-app"
   },
   "files": [
     "dist",
@@ -20,7 +15,7 @@
     "target": [
       "dmg"
     ],
-    "artifactName": "${productName}-Mac-${version}-Installer.${ext}"
+    "artifactName": "${productName}-Mac-${version}-Dev.${ext}"
   },
   "win": {
     "target": [
@@ -31,9 +26,9 @@
         ]
       }
     ],
-    "artifactName": "${productName}-Windows-${version}-Setup.${ext}",
+    "artifactName": "${productName}-Windows-${version}-Dev.${ext}",
     "sign": null,
-    "publisherName": "HLSystem"
+    "publisherName": "HLSystem Dev"
   },
   "nsis": {
     "oneClick": false,
@@ -48,6 +43,6 @@
     "target": [
       "AppImage"
     ],
-    "artifactName": "${productName}-Linux-${version}.${ext}"
+    "artifactName": "${productName}-Linux-${version}-Dev.${ext}"
   }
 }

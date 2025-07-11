@@ -17,16 +17,23 @@ export interface PrintReceiptData {
 declare global {
   interface Window {
     ipcRenderer?: {
-      on: (channel: string, listener: (event: any, ...args: any[]) => void) => void;
-      send: (channel: string, ...args: any[]) => void;
-      invoke: (channel: string, ...args: any[]) => Promise<any>;
+      on: (channel: string, listener: (event: unknown, ...args: unknown[]) => void) => void;
+      send: (channel: string, ...args: unknown[]) => void;
+      invoke: (channel: string, ...args: unknown[]) => Promise<unknown>;
     };
     electronAPI?: {
       printReceipt: (data: PrintReceiptData) => Promise<{ success: boolean; error?: string }>;
-      getPrinters: () => Promise<any[]>;
+      getPrinters: () => Promise<unknown[]>;
       startRTSPStream: (rtspUrl: string, streamId: string) => Promise<{ success: boolean; port?: number; error?: string }>;
       stopRTSPStream: (streamId: string) => Promise<{ success: boolean; error?: string }>;
       getStreamPort: (streamId: string) => Promise<{ success: boolean; port?: number | null }>;
+      // Auto-updater APIs
+      checkForUpdates: () => Promise<void>;
+      restartApp: () => Promise<void>;
+      onUpdateAvailable: (callback: () => void) => void;
+      onUpdateDownloaded: (callback: () => void) => void;
+      onDownloadProgress: (callback: (progress: unknown) => void) => void;
+      removeAllListeners: (channel: string) => void;
     }
   }
 }

@@ -1,0 +1,19 @@
+# Git hooks konfigurace pro automatické verzování
+
+# Pre-commit hook - kontrola před commitem
+echo "📝 Running pre-commit checks..."
+
+# Lint check
+if ! npm run lint; then
+    echo "❌ Lint errors found. Please fix them before committing."
+    exit 1
+fi
+
+# TypeScript check
+if ! npx tsc --noEmit; then
+    echo "❌ TypeScript errors found. Please fix them before committing."
+    exit 1
+fi
+
+echo "✅ Pre-commit checks passed!"
+exit 0

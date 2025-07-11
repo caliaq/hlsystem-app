@@ -1,16 +1,29 @@
 {
   "name": "hlsystem-app",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
+  "homepage": "https://github.com/caliaq/hlsystem-app",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/caliaq/hlsystem-app.git"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build && electron-builder",
+    "build:dev": "tsc && vite build && electron-builder --config electron-builder.dev.json5",
+    "build:publish": "tsc && vite build && electron-builder --publish=always",
+    "build:draft": "tsc && vite build && electron-builder --publish=never",
+    "release:major": "npm version major && git push --follow-tags",
+    "release:minor": "npm version minor && git push --follow-tags", 
+    "release:patch": "npm version patch && git push --follow-tags",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "postinstall": "electron-builder install-app-deps"
   },
   "dependencies": {
     "bufferutil": "^4.0.9",
+    "electron-updater": "^6.6.2",
     "express": "^5.1.0",
     "hls.js": "^1.6.7",
     "jsmpeg": "^1.0.0",

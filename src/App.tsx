@@ -6,6 +6,7 @@ import Metrics from "./pages/Metrics";
 import TaxReduction from "./pages/TaxReduction";
 
 import Navigation from "./components/Navigation";
+import UpdateManager from "./components/UpdateManager";
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
           <Route path="/tax-reduction" element={<TaxReduction />} />
         </Routes>
       </div>
+      <UpdateManager />
     </main>
   );
 }

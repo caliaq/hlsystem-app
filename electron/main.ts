@@ -1,4 +1,5 @@
-import { app, BrowserWindow, ipcMain } from 'electron'
+import { app, BrowserWindow, ipcMain, dialog } from 'electron'
+import { autoUpdater } from 'electron-updater'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 import './printer' // Import printer module
@@ -25,6 +26,52 @@ export const RENDERER_DIST = path.join(process.env.APP_ROOT, 'dist')
 process.env.VITE_PUBLIC = VITE_DEV_SERVER_URL ? path.join(process.env.APP_ROOT, 'public') : RENDERER_DIST
 
 let win: BrowserWindow | null
+
+// Auto-updater configuration
+autoUpdater.checkForUpdatesAndNotify()
+
+// Auto-updater events
+autoUpdater.on('checking-for-update', () => {
+  console.log('Checking for update...')
+})
+
+autoUpdater.on('update-available', () => {
+  console.log('Update available.')
+  win?.webContents.send('update-available')
+})
+
+autoUpdater.on('update-not-available', () => {
+  console.log('Update not available.')
+})
+
+autoUpdater.on('error', (err) => {
+  console.log('Error in auto-updater. ' + err)
+})
+
+autoUpdater.on('download-progress', (progressObj) => {
+  let log_message = "Download speed: " + progressObj.bytesPerSecond
+  log_message = log_message + ' - Downloaded ' + progressObj.percent + '%'
+  log_message = log_message + ' (' + progressObj.transferred + "/" + progressObj.total + ')'
+  console.log(log_message)
+  win?.webContents.send('download-progress', progressObj)
+})
+
+autoUpdater.on('update-downloaded', () => {
+  console.log('Update downloaded')
+  win?.webContents.send('update-downloaded')
+  
+  // Show dialog asking user to restart
+  dialog.showMessageBox(win!, {
+    type: 'info',
+    title: 'Update Ready',
+    message: 'Update downloaded. The application will restart to apply the update.',
+    buttons: ['Restart Now', 'Later']
+  }).then((result) => {
+    if (result.response === 0) {
+      autoUpdater.quitAndInstall()
+    }
+  })
+})
 
 function createWindow() {
   win = new BrowserWindow({
@@ -81,6 +128,13 @@ app.on('activate', () => {
 app.whenReady().then(() => {
   createWindow()
   
+  // Check for updates after window is created (only in production)
+  if (!VITE_DEV_SERVER_URL) {
+    setTimeout(() => {
+      autoUpdater.checkForUpdatesAndNotify()
+    }, 3000) // Wait 3 seconds after app start
+  }
+  
   // Setup IPC handlers for RTSP streams
   ipcMain.handle('start-rtsp-stream', async (event, rtspUrl: string, streamId: string) => {
     try {
@@ -106,6 +160,15 @@ app.whenReady().then(() => {
     const port = rtspStreamServer.getStreamPort(streamId);
     return { success: true, port };
   });
+
+  // Auto-updater IPC handlers
+  ipcMain.handle('check-for-updates', () => {
+    autoUpdater.checkForUpdatesAndNotify()
+  })
+
+  ipcMain.handle('restart-app', () => {
+    autoUpdater.quitAndInstall()
+  })
 })
 
 // Cleanup streams on quit
