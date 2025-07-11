@@ -291,7 +291,7 @@ export default function Metrics() {
                   onClick={() => setDateFilter('day')}
                   className={`px-3 py-1 rounded-md text-sm transition-colors ${
                     dateFilter === 'day'
-                      ? 'bg-link text-text-primary'
+                      ? 'bg-link text-primary'
                       : 'bg-primary text-text-secondary hover:bg-secondary'
                   }`}
                 >
@@ -301,7 +301,7 @@ export default function Metrics() {
                   onClick={() => setDateFilter('month')}
                   className={`px-3 py-1 rounded-md text-sm transition-colors ${
                     dateFilter === 'month'
-                      ? 'bg-link text-text-primary'
+                      ? 'bg-link text-primary'
                       : 'bg-primary text-text-secondary hover:bg-secondary'
                   }`}
                 >
@@ -311,7 +311,7 @@ export default function Metrics() {
                   onClick={() => setDateFilter('year')}
                   className={`px-3 py-1 rounded-md text-sm transition-colors ${
                     dateFilter === 'year'
-                      ? 'bg-link text-text-primary'
+                      ? 'bg-link text-primary'
                       : 'bg-primary text-text-secondary hover:bg-secondary'
                   }`}
                 >
@@ -322,7 +322,7 @@ export default function Metrics() {
 
             <button
               onClick={() => fetchMetricsData()}
-              className="px-3 py-1 bg-link text-text-primary rounded-md text-sm hover:bg-link/80 transition-colors"
+              className="px-3 py-1 bg-link text-primary rounded-md text-sm hover:bg-link/80 transition-colors"
             >
               Obnovit
             </button>
@@ -331,15 +331,15 @@ export default function Metrics() {
             <button
               onClick={handlePrintMetrics}
               disabled={isPrinting || loading || totalRevenue === 0}
-              className={`px-3 py-1 rounded-md text-sm transition-colors flex items-center ${
+              className={`px-3 py-1 rounded-md text-sm text-primary transition-colors flex items-center ${
                 isPrinting || loading || totalRevenue === 0
                   ? 'bg-secondary text-text-secondary cursor-not-allowed'
-                  : 'bg-success text-text-primary hover:bg-success/80'
+                  : 'bg-success text-primary hover:bg-success/80'
               }`}
             >
               {isPrinting ? (
                 <>
-                  <div className="animate-spin h-4 w-4 border-2 border-text-secondary border-t-transparent rounded-full mr-2"></div>
+                  <div className="animate-spin h-4 w-4 border-2 text-primay border-text-secondary border-t-transparent rounded-full mr-2"></div>
                   Tiskne...
                 </>
               ) : (

@@ -22,40 +22,21 @@ export async function getGate(): Promise<Gate[]> {
   }
 }
 
-export async function closeGate(): Promise<void> {
-  const response = await fetch(`${ENV.API.ENDPOINTS.GATES}/686eb0ee9984cab163af5d5b/close`, {
+export async function toggleGate(): Promise<void> {
+  const response = await fetch(`${ENV.API.ENDPOINTS.GATES}/686eb0ee9984cab163af5d5b/toggle`, {
     headers: {
       'Content-Type': 'application/json',
     },
   });
 
   if (!response.ok) {
-    throw new Error(`Error closing gate: ${response.statusText}`);
+    throw new Error(`Error toggling gate: ${response.statusText}`);
   }
 
   const responseData = await response.json();
   
   // Check if response has success property
   if (!responseData.success) {
-    throw new Error('Failed to close gate');
-  }
-}
-
-export async function openGate(): Promise<void> {
-  const response = await fetch(`${ENV.API.ENDPOINTS.GATES}/686eb0ee9984cab163af5d5b/open`, {
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error(`Error opening gate: ${response.statusText}`);
-  }
-
-  const responseData = await response.json();
-  
-  // Check if response has success property
-  if (!responseData.success) {
-    throw new Error('Failed to open gate');
+    throw new Error('Failed to toggle gate');
   }
 }

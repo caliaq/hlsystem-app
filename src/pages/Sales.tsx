@@ -298,7 +298,7 @@ export default function Sales() {
                                 onClick={() => setDateFilter('month')}
                                 className={`px-3 py-1 rounded-md text-sm transition-colors ${
                                     dateFilter === 'month'
-                                        ? 'bg-link text-text-primary'
+                                        ? 'bg-link text-primary'
                                         : 'bg-secondary text-text-secondary hover:bg-primary'
                                 }`}
                             >
@@ -308,7 +308,7 @@ export default function Sales() {
                                 onClick={() => setDateFilter('year')}
                                 className={`px-3 py-1 rounded-md text-sm transition-colors ${
                                     dateFilter === 'year'
-                                        ? 'bg-link text-text-primary'
+                                        ? 'bg-link text--primary'
                                         : 'bg-secondary text-text-secondary hover:bg-primary'
                                 }`}
                             >
@@ -318,7 +318,7 @@ export default function Sales() {
                                 onClick={() => setDateFilter('custom')}
                                 className={`px-3 py-1 rounded-md text-sm transition-colors ${
                                     dateFilter === 'custom'
-                                        ? 'bg-link text-text-primary'
+                                        ? 'bg-link text-primary'
                                         : 'bg-secondary text-text-secondary hover:bg-primary'
                                 }`}
                             >
@@ -354,7 +354,7 @@ export default function Sales() {
                             />
                             <button
                                 onClick={() => setSearchId('')}
-                                className="px-3 py-1 bg-link text-text-primary rounded-md text-sm hover:bg-link/80"
+                                className="px-3 py-1 bg-link text-primary rounded-md text-sm hover:bg-link/80"
                             >
                                 Vymazat
                             </button>

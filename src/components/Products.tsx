@@ -123,14 +123,14 @@ export default function Products({ onSelectProduct }: ProductsProps) {
     };
 
     return (
-        <div className="w-full h-screen flex flex-col overflow-y-scroll">
+        <div className="w-full h-screen flex flex-col">
             <div className="p-4 bg-primary flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-text-secondary/10 gap-2">
                 <h2 className="text-2xl font-bold text-text-primary">Produkty</h2>
                 <div className="flex gap-2 w-full sm:w-auto">
                     {isEditMode && (
                         <button 
                             onClick={handleAddNewProduct}
-                            className="w-full sm:w-auto px-4 py-2 bg-success text-text-primary rounded-md hover:bg-success/80 transition-colors flex items-center justify-center"
+                            className="w-full sm:w-auto px-4 py-2 bg-success text-primary rounded-md hover:bg-success/80 transition-colors flex items-center justify-center"
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
                                 <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
@@ -140,7 +140,7 @@ export default function Products({ onSelectProduct }: ProductsProps) {
                     )}
                     <button 
                         onClick={handleEditModeToggle}
-                        className={`w-full sm:w-auto px-4 py-2 ${isEditMode ? 'bg-error' : 'bg-link'} text-text-primary rounded-md hover:opacity-90 transition-colors flex items-center justify-center`}
+                        className={`w-full sm:w-auto px-4 py-2 ${isEditMode ? 'bg-error' : 'bg-link'} text-primary rounded-md hover:opacity-90 transition-colors flex items-center justify-center`}
                     >
                         {isEditMode ? (
                             <>
@@ -184,7 +184,7 @@ export default function Products({ onSelectProduct }: ProductsProps) {
                             onClick={handleAddNewProduct}
                             className="mt-4 px-4 py-2 bg-link text-text-primary rounded-md hover:bg-blue-700 transition-colors text-sm"
                         >
-                            Add your first product
+                            Přidejte první produkt
                         </button>
                     </div>
                 ) : (

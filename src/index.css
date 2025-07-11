@@ -11,19 +11,19 @@
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  color-scheme: light;
+  color: #0D1218;
+  background-color: #FCFCFD;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  --color-primary: #1d2027;
-  --color-secondary: #36393e; /* Renamed from secondary-color to match tailwind usage */
-  --color-text-primary: #fff;
-  --color-text-secondary: #d1d1d1;
+  --color-primary: #FCFCFD;
+  --color-secondary: #D9E0EA; /* Renamed from secondary-color to match tailwind usage */
+  --color-text-primary: #0D1218;
+  --color-text-secondary: #19283A;
   --color-link: #2563EB;
   --color-error: #DC2626;
   --color-success: #16A34A;

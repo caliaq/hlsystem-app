@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getGate, openGate, closeGate } from '../services/gateService';
+import { getGate, toggleGate } from '../services/gateService';
 import { Gate } from '../types/gate';
 import RTSPStream from './RTSPStream';
 
@@ -11,13 +11,8 @@ export default function Gates() {
     const handleGateToggle = async () => {
         setIsLoading(true);
         try {
-            if (isGateOpen) {
-                await closeGate();
-                setIsGateOpen(false);
-            } else {
-                await openGate();
-                setIsGateOpen(true);
-            }
+            await toggleGate();
+            setIsGateOpen(!isGateOpen);
         } catch (error) {
             console.error('Error toggling gate:', error);
         } finally {
@@ -50,7 +45,7 @@ export default function Gates() {
                 <button
                     onClick={handleGateToggle}
                     disabled={isLoading}
-                    className={`px-6 py-2 rounded-lg font-medium transition-colors ${
+                    className={`px-6 py-2 mx-auto rounded-lg font-medium transition-colors ${
                         isGateOpen
                             ? 'bg-red-600 hover:bg-red-700 text-white'
                             : 'bg-green-600 hover:bg-green-700 text-white'
@@ -60,7 +55,7 @@ export default function Gates() {
                 </button>
             </div>
             {gate.map((g) => (
-                <div key={g._id} className="mb-8 p-4 rounded-lg">
+                <div key={g._id} className="mb-2 rounded-lg">
                     {/* <h2 className="text-xl font-semibold mb-4">{g.name}</h2> */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                         <div>

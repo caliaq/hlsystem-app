@@ -259,12 +259,6 @@ export default function Overview({ selectedProducts = [], onClearOrder }: Overvi
                     Vymazat
                 </button>
             </div>
-            {lastAddedItemId && (
-                <div className="mb-2 text-xs text-text-secondary bg-secondary/30 px-3 py-2 rounded">
-                    <strong>Režim úpravy množství:</strong> {quantityInput || '0'} | 
-                    <span className="ml-1">Enter = potvrdit | Esc = ukončit | 0-9 = změnit | Backspace = smazat</span>
-                </div>
-            )}
 
             {orderProducts.length === 0 ? (
                 <div className="flex-1 flex flex-col items-center justify-center text-text-secondary">
@@ -277,29 +271,24 @@ export default function Overview({ selectedProducts = [], onClearOrder }: Overvi
             ) : (
                 <>
                     <div className="flex-1 overflow-auto">
-                        <div className="space-y-2">
+                        <div className="space-y-1">
                             {orderProducts.map((item) => {
                                 const isActiveItem = item._id === lastAddedItemId;
                                 return (
                                     <div 
                                         key={item._id} 
                                         onClick={() => handleItemClick(item._id!)}
-                                        className={`flex items-center justify-between p-2 rounded-md transition-all cursor-pointer ${
+                                        className={`grid grid-cols-[1fr_auto_auto] gap-4 items-center p-2 rounded-md transition-all cursor-pointer ${
                                             isActiveItem 
                                                 ? 'bg-success/20 border-2 border-success/50 ring-2 ring-success/30' 
                                                 : 'bg-secondary/30 hover:bg-secondary/50'
                                         }`}
                                     >
-                                        <div className="flex-1">
-                                            <h4 className="text-text-primary font-medium text-sm">{item.product.name}</h4>
+                                        <div className="min-w-0">
+                                            <h4 className="text-text-primary font-medium text-sm truncate">{item.product.name}</h4>
                                             <p className="text-text-secondary text-xs">{formatPrice(item.product.price)}</p>
-                                            {isActiveItem && (
-                                                <p className="text-success text-xs font-medium mt-1">
-                                                    ⌨️ Aktivní pro změnu množství (klikněte pro zrušení)
-                                                </p>
-                                            )}
                                         </div>
-                                        <div className="flex items-center space-x-2">
+                                        <div className="flex items-center space-x-2 w-24 justify-center">
                                             <button
                                                 onClick={(e) => {
                                                     e.stopPropagation();
@@ -310,7 +299,7 @@ export default function Overview({ selectedProducts = [], onClearOrder }: Overvi
                                             >
                                                 -
                                             </button>
-                                            <span className={`min-w-[2rem] text-center ${
+                                            <span className={`w-8 text-center ${
                                                 isActiveItem ? 'text-success font-bold' : 'text-text-primary'
                                             }`}>
                                                 {item.quantity}
@@ -326,7 +315,7 @@ export default function Overview({ selectedProducts = [], onClearOrder }: Overvi
                                                 +
                                             </button>
                                         </div>
-                                        <div className="text-right ml-4">
+                                        <div className="text-right w-20">
                                             <p className="text-text-primary font-medium text-sm">
                                                 {formatPrice(item.product.price * item.quantity)}
                                             </p>
@@ -346,7 +335,7 @@ export default function Overview({ selectedProducts = [], onClearOrder }: Overvi
                         <button
                             onClick={handleCompleteSale}
                             disabled={orderProducts.length === 0 || isProcessing}
-                            className={`w-full py-3 text-text-primary rounded-md transition-colors ${orderProducts.length === 0 || isProcessing
+                            className={`w-full py-3 text-primary rounded-md transition-colors ${orderProducts.length === 0 || isProcessing
                                     ? 'bg-success/40 cursor-not-allowed'
                                     : 'bg-success hover:bg-success/80'
                                 }`}

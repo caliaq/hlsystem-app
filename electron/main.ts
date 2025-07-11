@@ -29,9 +29,10 @@ let win: BrowserWindow | null
 function createWindow() {
   win = new BrowserWindow({
     width: 1200,
-    height: 800,
+    height: 900,
     show: false,
-    icon: path.join(process.env.VITE_PUBLIC, 'electron-vite.svg'),
+    titleBarStyle: 'default',
+    icon: path.join(process.env.VITE_PUBLIC, 'logo.png'),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
