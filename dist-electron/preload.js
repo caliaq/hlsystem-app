@@ -1,15 +1,16 @@
-import { contextBridge as o, ipcRenderer as t } from "electron";
-o.exposeInMainWorld("electronAPI", {
-  printReceipt: (e) => t.invoke("print-receipt", e),
-  getPrinters: () => t.invoke("get-printers"),
-  startRTSPStream: (e, r) => t.invoke("start-rtsp-stream", e, r),
-  stopRTSPStream: (e) => t.invoke("stop-rtsp-stream", e),
-  getStreamPort: (e) => t.invoke("get-stream-port", e),
+"use strict";
+const electron = require("electron");
+electron.contextBridge.exposeInMainWorld("electronAPI", {
+  printReceipt: (data) => electron.ipcRenderer.invoke("print-receipt", data),
+  getPrinters: () => electron.ipcRenderer.invoke("get-printers"),
+  startRTSPStream: (rtspUrl, streamId) => electron.ipcRenderer.invoke("start-rtsp-stream", rtspUrl, streamId),
+  stopRTSPStream: (streamId) => electron.ipcRenderer.invoke("stop-rtsp-stream", streamId),
+  getStreamPort: (streamId) => electron.ipcRenderer.invoke("get-stream-port", streamId),
   // Auto-updater APIs
-  checkForUpdates: () => t.invoke("check-for-updates"),
-  restartApp: () => t.invoke("restart-app"),
-  onUpdateAvailable: (e) => t.on("update-available", e),
-  onUpdateDownloaded: (e) => t.on("update-downloaded", e),
-  onDownloadProgress: (e) => t.on("download-progress", e),
-  removeAllListeners: (e) => t.removeAllListeners(e)
+  checkForUpdates: () => electron.ipcRenderer.invoke("check-for-updates"),
+  restartApp: () => electron.ipcRenderer.invoke("restart-app"),
+  onUpdateAvailable: (callback) => electron.ipcRenderer.on("update-available", callback),
+  onUpdateDownloaded: (callback) => electron.ipcRenderer.on("update-downloaded", callback),
+  onDownloadProgress: (callback) => electron.ipcRenderer.on("download-progress", callback),
+  removeAllListeners: (channel) => electron.ipcRenderer.removeAllListeners(channel)
 });
