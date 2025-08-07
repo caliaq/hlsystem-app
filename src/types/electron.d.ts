@@ -32,9 +32,12 @@ declare global {
       // Auto-updater APIs
       checkForUpdates: () => Promise<void>;
       restartApp: () => Promise<void>;
-      onUpdateAvailable: (callback: () => void) => void;
-      onUpdateDownloaded: (callback: () => void) => void;
+      onCheckingForUpdate: (callback: () => void) => void;
+      onUpdateAvailable: (callback: (info: unknown) => void) => void;
+      onUpdateNotAvailable: (callback: (info: unknown) => void) => void;
+      onUpdateDownloaded: (callback: (info: unknown) => void) => void;
       onDownloadProgress: (callback: (progress: unknown) => void) => void;
+      onUpdateError: (callback: (error: string) => void) => void;
       removeAllListeners: (channel: string) => void;
     }
   }

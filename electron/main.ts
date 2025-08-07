@@ -28,24 +28,30 @@ process.env.VITE_PUBLIC = VITE_DEV_SERVER_URL ? path.join(process.env.APP_ROOT, 
 let win: BrowserWindow | null
 
 // Auto-updater configuration
-autoUpdater.checkForUpdatesAndNotify()
+autoUpdater.autoDownload = false;
+autoUpdater.autoInstallOnAppQuit = true;
 
 // Auto-updater events
 autoUpdater.on('checking-for-update', () => {
   console.log('Checking for update...')
+  win?.webContents.send('checking-for-update')
 })
 
-autoUpdater.on('update-available', () => {
-  console.log('Update available.')
-  win?.webContents.send('update-available')
+autoUpdater.on('update-available', (info) => {
+  console.log('Update available:', info)
+  win?.webContents.send('update-available', info)
+  // Automatically start download
+  autoUpdater.downloadUpdate()
 })
 
-autoUpdater.on('update-not-available', () => {
-  console.log('Update not available.')
+autoUpdater.on('update-not-available', (info) => {
+  console.log('Update not available:', info)
+  win?.webContents.send('update-not-available', info)
 })
 
 autoUpdater.on('error', (err) => {
-  console.log('Error in auto-updater. ' + err)
+  console.log('Error in auto-updater:', err)
+  win?.webContents.send('update-error', err.message)
 })
 
 autoUpdater.on('download-progress', (progressObj) => {
@@ -53,19 +59,20 @@ autoUpdater.on('download-progress', (progressObj) => {
   log_message = log_message + ' - Downloaded ' + progressObj.percent + '%'
   log_message = log_message + ' (' + progressObj.transferred + "/" + progressObj.total + ')'
   console.log(log_message)
+  console.log('Progress object:', JSON.stringify(progressObj))
   win?.webContents.send('download-progress', progressObj)
 })
 
-autoUpdater.on('update-downloaded', () => {
-  console.log('Update downloaded')
-  win?.webContents.send('update-downloaded')
+autoUpdater.on('update-downloaded', (info) => {
+  console.log('Update downloaded:', info)
+  win?.webContents.send('update-downloaded', info)
   
   // Show dialog asking user to restart
   dialog.showMessageBox(win!, {
     type: 'info',
-    title: 'Update Ready',
-    message: 'Update downloaded. The application will restart to apply the update.',
-    buttons: ['Restart Now', 'Later']
+    title: 'Aktualizace připravena',
+    message: 'Aktualizace byla stažena a je připravena k instalaci. Aplikace se restartuje.',
+    buttons: ['Restartovat nyní', 'Později']
   }).then((result) => {
     if (result.response === 0) {
       autoUpdater.quitAndInstall()
@@ -128,13 +135,6 @@ app.on('activate', () => {
 app.whenReady().then(() => {
   createWindow()
   
-  // Check for updates after window is created (only in production)
-  if (!VITE_DEV_SERVER_URL) {
-    setTimeout(() => {
-      autoUpdater.checkForUpdatesAndNotify()
-    }, 3000) // Wait 3 seconds after app start
-  }
-  
   // Setup IPC handlers for RTSP streams
   ipcMain.handle('start-rtsp-stream', async (event, rtspUrl: string, streamId: string) => {
     try {
@@ -172,12 +172,24 @@ app.whenReady().then(() => {
   });
 
   // Auto-updater IPC handlers
-  ipcMain.handle('check-for-updates', () => {
-    autoUpdater.checkForUpdatesAndNotify()
+  ipcMain.handle('check-for-updates', async () => {
+    try {
+      console.log('IPC: check-for-updates called');
+      win?.webContents.send('checking-for-update')
+      const result = await autoUpdater.checkForUpdates();
+      console.log('IPC: checkForUpdates result:', result);
+      return { success: true, result };
+    } catch (error) {
+      console.error('IPC: Error checking for updates:', error);
+      win?.webContents.send('update-error', error instanceof Error ? error.message : 'Unknown error')
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+    }
   })
 
   ipcMain.handle('restart-app', () => {
+    console.log('IPC: restart-app called');
     autoUpdater.quitAndInstall()
+    return { success: true };
   })
 })
 
