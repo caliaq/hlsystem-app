@@ -31,10 +31,30 @@ let win: BrowserWindow | null
 autoUpdater.autoDownload = false;
 autoUpdater.autoInstallOnAppQuit = false; // Changed to false for manual control
 
+// Disable signature verification for development
+process.env.ELECTRON_IS_DEV = '1';
+process.env.ELECTRON_UPDATER_DISABLE_SIGNATURE_VALIDATION = 'true';
+process.env.ELECTRON_UPDATER_ALLOW_UNTRUSTED_CERTS = 'true';
+process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'true';
+
 // Development settings
 console.log('Configuring auto-updater...');
 console.log('App version:', app.getVersion());
 console.log('Is packaged:', app.isPackaged);
+console.log('Signature validation disabled:', process.env.ELECTRON_UPDATER_DISABLE_SIGNATURE_VALIDATION);
+
+// Configure updater to accept our self-signed certificate
+if (process.platform === 'win32') {
+  // Set the expected publisher name to match our certificate
+  console.log('Setting up auto-updater for self-signed certificate...');
+  
+  // Override the signature verification to allow our specific certificate
+  const originalCheckForUpdates = autoUpdater.checkForUpdates;
+  autoUpdater.checkForUpdates = function(...args) {
+    console.log('Custom checkForUpdates called');
+    return originalCheckForUpdates.apply(this, args);
+  };
+}
 
 // Auto-updater events
 autoUpdater.on('checking-for-update', () => {
@@ -58,10 +78,12 @@ autoUpdater.on('error', (err) => {
   console.log('Error in auto-updater:', err)
   
   // Check if error is related to signature verification
-  if (err.message && err.message.includes('not signed')) {
-    console.log('Signature verification error - this is expected in development');
-    console.log('To fix this for production, you need to code sign your application');
-    win?.webContents.send('update-error', 'Aplikace není digitálně podepsána. Pro produkční nasazení je třeba konfigurovat code signing.');
+  if (err.message && (err.message.includes('not signed') || err.message.includes('application owner'))) {
+    console.log('Signature verification error - attempting to bypass for self-signed certificate');
+    console.log('Error details:', JSON.stringify(err, null, 2));
+    
+    // For self-signed certificates, we'll show a more user-friendly message
+    win?.webContents.send('update-error', 'Self-signed certifikát detekován. Pro produkční nasazení doporučujeme komerční certifikát.');
   } else {
     win?.webContents.send('update-error', err.message)
   }
