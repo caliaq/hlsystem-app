@@ -10,11 +10,7 @@ export default function Metrics() {
   const [dateFilter, setDateFilter] = useState<DateFilter>('day');
   
   // Always visible date range controls
-  const [startDate, setStartDate] = useState<string>(() => {
-    const date = new Date();
-    date.setMonth(date.getMonth() - 1); // Default to last month
-    return date.toISOString().split('T')[0];
-  });
+  const [startDate, setStartDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const [endDate, setEndDate] = useState<string>(new Date().toISOString().split('T')[0]);
   
   const [loading, setLoading] = useState(true);
