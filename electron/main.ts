@@ -31,6 +31,11 @@ let win: BrowserWindow | null
 autoUpdater.autoDownload = false;
 autoUpdater.autoInstallOnAppQuit = false; // Changed to false for manual control
 
+// Development settings
+console.log('Configuring auto-updater...');
+console.log('App version:', app.getVersion());
+console.log('Is packaged:', app.isPackaged);
+
 // Auto-updater events
 autoUpdater.on('checking-for-update', () => {
   console.log('Checking for update...')
@@ -51,7 +56,15 @@ autoUpdater.on('update-not-available', (info) => {
 
 autoUpdater.on('error', (err) => {
   console.log('Error in auto-updater:', err)
-  win?.webContents.send('update-error', err.message)
+  
+  // Check if error is related to signature verification
+  if (err.message && err.message.includes('not signed')) {
+    console.log('Signature verification error - this is expected in development');
+    console.log('To fix this for production, you need to code sign your application');
+    win?.webContents.send('update-error', 'Aplikace není digitálně podepsána. Pro produkční nasazení je třeba konfigurovat code signing.');
+  } else {
+    win?.webContents.send('update-error', err.message)
+  }
 })
 
 autoUpdater.on('download-progress', (progressObj) => {

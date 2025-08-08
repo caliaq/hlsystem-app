@@ -12,6 +12,7 @@
     "owner": "caliaq",
     "repo": "hlsystem-app"
   },
+  "forceCodeSigning": false,
   "files": [
     "dist",
     "dist-electron"
@@ -32,7 +33,9 @@
       }
     ],
     "artifactName": "hlsystem-app-setup-${version}.${ext}",
-    "sign": null,
+    "certificateFile": "certs/hlsystem-codesign.pfx",
+    "certificatePassword": "hlsystem2024",
+    "verifyUpdateCodeSignature": false,
     "publisherName": "HLSystem"
   },
   "nsis": {

@@ -17,6 +17,9 @@ dist-ssr
 
 release
 
+# Code signing certificates (contains private keys)
+certs/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
