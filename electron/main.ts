@@ -29,7 +29,7 @@ let win: BrowserWindow | null
 
 // Auto-updater configuration
 autoUpdater.autoDownload = false;
-autoUpdater.autoInstallOnAppQuit = true;
+autoUpdater.autoInstallOnAppQuit = false; // Changed to false for manual control
 
 // Auto-updater events
 autoUpdater.on('checking-for-update', () => {
@@ -65,17 +65,55 @@ autoUpdater.on('download-progress', (progressObj) => {
 
 autoUpdater.on('update-downloaded', (info) => {
   console.log('Update downloaded:', info)
+  console.log('Sending update-downloaded event to renderer...')
   win?.webContents.send('update-downloaded', info)
   
-  // Show dialog asking user to restart
+  console.log('Showing restart dialog...')
+  
+  // Try immediate restart first, then show dialog as backup
+  setTimeout(() => {
+    console.log('Auto-restarting in 3 seconds...')
+    try {
+      console.log('Calling autoUpdater.quitAndInstall()...')
+      autoUpdater.quitAndInstall(true, true) // Force restart immediately
+    } catch (error) {
+      console.error('Error in quitAndInstall:', error)
+      console.log('Falling back to app.quit()...')
+      app.relaunch()
+      app.quit()
+    }
+  }, 3000)
+  
+  // Also show dialog
   dialog.showMessageBox(win!, {
     type: 'info',
     title: 'Aktualizace připravena',
-    message: 'Aktualizace byla stažena a je připravena k instalaci. Aplikace se restartuje.',
+    message: 'Aktualizace byla stažena. Aplikace se automaticky restartuje za 3 sekundy, nebo klikněte "Restartovat nyní".',
     buttons: ['Restartovat nyní', 'Později']
   }).then((result) => {
+    console.log('Dialog result:', result)
     if (result.response === 0) {
-      autoUpdater.quitAndInstall()
+      console.log('User chose to restart immediately - calling quitAndInstall...')
+      try {
+        autoUpdater.quitAndInstall(true, true)
+      } catch (error) {
+        console.error('Error in quitAndInstall from dialog:', error)
+        app.relaunch()
+        app.quit()
+      }
+    } else {
+      console.log('User chose to restart later')
+    }
+  }).catch((error) => {
+    console.error('Error showing dialog:', error)
+    // If dialog fails, force restart anyway
+    console.log('Dialog failed, forcing restart...')
+    try {
+      autoUpdater.quitAndInstall(true, true)
+    } catch (restartError) {
+      console.error('Error in fallback quitAndInstall:', restartError)
+      app.relaunch()
+      app.quit()
     }
   })
 })
@@ -188,8 +226,30 @@ app.whenReady().then(() => {
 
   ipcMain.handle('restart-app', () => {
     console.log('IPC: restart-app called');
-    autoUpdater.quitAndInstall()
-    return { success: true };
+    try {
+      console.log('Attempting quitAndInstall...')
+      autoUpdater.quitAndInstall(true, true) // Force restart immediately
+      
+      // Fallback - force quit after timeout
+      setTimeout(() => {
+        console.log('quitAndInstall timeout - forcing app quit...')
+        app.relaunch()
+        app.quit()
+      }, 2000)
+      
+      return { success: true };
+    } catch (error) {
+      console.error('Error in restart-app:', error)
+      // Force quit as last resort
+      try {
+        app.relaunch()
+        app.quit()
+      } catch (finalError) {
+        console.error('Final error in restart:', finalError)
+        process.exit(0)
+      }
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+    }
   })
 })
 
